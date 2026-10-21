@@ -68,25 +68,41 @@ export interface FiltrosCatalogo {
   busqueda: string;
 }
 
-/* ─── Tipado del esquema de Supabase (simplificado) ─── */
+/* ─── Tipado del esquema de Supabase v2 ─── */
 export interface Database {
   public: {
     Tables: {
       categorias: {
         Row: Categoria;
-        Insert: Omit<Categoria, 'id' | 'created_at'>;
-        Update: Partial<Omit<Categoria, 'id' | 'created_at'>>;
+        Insert: Partial<Categoria>;
+        Update: Partial<Categoria>;
+        Relationships: [];
       };
       productos: {
         Row: Producto;
-        Insert: Omit<Producto, 'id' | 'created_at' | 'updated_at'>;
-        Update: Partial<Omit<Producto, 'id' | 'created_at' | 'updated_at'>>;
+        Insert: Partial<Producto>;
+        Update: Partial<Producto>;
+        Relationships: [];
       };
       variantes: {
         Row: Variante;
-        Insert: Omit<Variante, 'id' | 'created_at' | 'updated_at'>;
-        Update: Partial<Omit<Variante, 'id' | 'created_at' | 'updated_at'>>;
+        Insert: Partial<Variante>;
+        Update: Partial<Variante>;
+        Relationships: [];
       };
+    };
+    Views: {
+      [_ in never]: never;
+    };
+    Functions: {
+      [_ in never]: never;
+    };
+    Enums: {
+      [_ in never]: never;
+    };
+    CompositeTypes: {
+      [_ in never]: never;
     };
   };
 }
+
