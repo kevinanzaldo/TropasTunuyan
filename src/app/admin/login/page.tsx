@@ -42,12 +42,10 @@ export default function AdminLoginPage() {
         return;
       }
 
-      // 2. Credenciales maestras del sistema (admin@tropastunuyan.com / admin123)
+      // 2. Credenciales maestras del sistema
       // Permite ingreso inmediato sin requerir configuración manual previa de usuarios en Supabase Auth
       const esAdminPorDefecto =
-        (email.trim().toLowerCase() === 'admin@tropastunuyan.com' && password === 'admin123') ||
-        (email.trim().toLowerCase() === 'admin' && password === 'admin123') ||
-        (email.trim().toLowerCase() === 'kevin' && password === 'admin123');
+        email.trim().toLowerCase() === 'tropastunuyan@gmail.com' && password === 'Tropas23660078@';
 
       if (esAdminPorDefecto) {
         localStorage.setItem('tropas_admin_auth', 'authenticated');
@@ -65,8 +63,8 @@ export default function AdminLoginPage() {
   };
 
   const autocompletarDemo = () => {
-    setEmail('admin@tropastunuyan.com');
-    setPassword('admin123');
+    setEmail('tropastunuyan@gmail.com');
+    setPassword('Tropas23660078@');
     setErrorMsg('');
   };
 
@@ -133,7 +131,7 @@ export default function AdminLoginPage() {
                 <input
                   type="email"
                   required
-                  placeholder="admin@tropastunuyan.com"
+                  placeholder="tropastunuyan@gmail.com"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   className="w-full pl-10 pr-3.5 py-2.5 text-sm bg-zinc-50 dark:bg-zinc-950 border border-zinc-300 dark:border-zinc-800 rounded-xl text-zinc-900 dark:text-white placeholder-zinc-400 dark:placeholder-zinc-500 focus:outline-none focus:border-militar-600 focus:ring-1 focus:ring-militar-600 transition-colors shadow-xs"
@@ -211,20 +209,19 @@ export default function AdminLoginPage() {
             </div>
           </form>
 
-          {/* Ayuda de acceso demo */}
+          {/* Ayuda de acceso */}
           <div className="mt-6 pt-5 border-t border-zinc-200 dark:border-zinc-800 text-center">
-            <p className="text-[11px] text-zinc-500 dark:text-zinc-400 mb-2">
-              Credenciales habilitadas para administración:
-            </p>
             <button
               type="button"
               onClick={autocompletarDemo}
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-mono font-semibold text-militar-700 dark:text-militar-400 bg-militar-50 dark:bg-militar-600/10 border border-militar-200 dark:border-militar-600/30 hover:bg-militar-100 dark:hover:bg-militar-600/20 transition-colors"
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold text-militar-700 dark:text-militar-400 bg-militar-50 dark:bg-militar-600/10 border border-militar-200 dark:border-militar-600/30 hover:bg-militar-100 dark:hover:bg-militar-600/20 transition-colors"
             >
-              <span>admin@tropastunuyan.com</span>
-              <span className="text-zinc-400">/</span>
-              <span>admin123</span>
-              <span className="ml-1 text-[10px] text-zinc-500 underline">Autocompletar</span>
+              <svg xmlns="http://www.w3.org/2000/svg" className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4" />
+                <polyline points="10 17 15 12 10 7" />
+                <line x1="15" x2="3" y1="12" y2="12" />
+              </svg>
+              Autocompletar credenciales
             </button>
           </div>
         </div>

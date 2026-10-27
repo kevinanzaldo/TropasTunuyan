@@ -25,16 +25,18 @@ CREATE TABLE IF NOT EXISTS categorias (
 -- Catálogo principal de artículos
 -- ──────────────────────────────────────────────
 CREATE TABLE IF NOT EXISTS productos (
-  id                UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-  nombre            TEXT NOT NULL,
-  descripcion       TEXT,
-  precio            NUMERIC(10, 2) NOT NULL DEFAULT 0,
-  exige_credencial  BOOLEAN NOT NULL DEFAULT FALSE,
-  categoria_id      UUID REFERENCES categorias(id) ON DELETE SET NULL,
-  imagen_url        TEXT,
-  activo            BOOLEAN NOT NULL DEFAULT TRUE,
-  created_at        TIMESTAMPTZ DEFAULT NOW(),
-  updated_at        TIMESTAMPTZ DEFAULT NOW()
+  id                  UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  nombre              TEXT NOT NULL,
+  descripcion         TEXT,
+  precio              NUMERIC(10, 2) NOT NULL DEFAULT 0,
+  costo               NUMERIC(10, 2) DEFAULT 0,
+  porcentaje_ganancia NUMERIC(5, 2) DEFAULT 0,
+  exige_credencial    BOOLEAN NOT NULL DEFAULT FALSE,
+  categoria_id        UUID REFERENCES categorias(id) ON DELETE SET NULL,
+  imagen_url          TEXT,
+  activo              BOOLEAN NOT NULL DEFAULT TRUE,
+  created_at          TIMESTAMPTZ DEFAULT NOW(),
+  updated_at          TIMESTAMPTZ DEFAULT NOW()
 );
 
 -- ──────────────────────────────────────────────
@@ -53,6 +55,22 @@ CREATE TABLE IF NOT EXISTS variantes (
 
   -- Evitar variantes duplicadas para el mismo producto
   UNIQUE (producto_id, talle, color)
+);
+
+-- ──────────────────────────────────────────────
+-- TABLA: movimientos_caja
+-- Control de caja, ingresos, egresos y pagos
+-- ──────────────────────────────────────────────
+CREATE TABLE IF NOT EXISTS movimientos_caja (
+  id              UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  tipo            TEXT NOT NULL CHECK (tipo IN ('ingreso', 'egreso')),
+  monto           NUMERIC(10, 2) NOT NULL,
+  concepto        TEXT NOT NULL,
+  categoria_caja  TEXT DEFAULT 'general',
+  metodo_pago     TEXT DEFAULT 'efectivo',
+  producto_id     UUID REFERENCES productos(id) ON DELETE SET NULL,
+  cantidad        INTEGER DEFAULT 1,
+  created_at      TIMESTAMPTZ DEFAULT NOW()
 );
 
 -- ──────────────────────────────────────────────
@@ -75,6 +93,7 @@ ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT ALL ON TABLES TO anon, authentic
 ALTER TABLE categorias ENABLE ROW LEVEL SECURITY;
 ALTER TABLE productos ENABLE ROW LEVEL SECURITY;
 ALTER TABLE variantes ENABLE ROW LEVEL SECURITY;
+ALTER TABLE movimientos_caja ENABLE ROW LEVEL SECURITY;
 
 -- Políticas de LECTURA pública
 CREATE POLICY "Lectura pública de categorias"
@@ -87,6 +106,10 @@ CREATE POLICY "Lectura pública de productos"
 
 CREATE POLICY "Lectura pública de variantes"
   ON variantes FOR SELECT
+  USING (true);
+
+CREATE POLICY "Lectura pública de movimientos_caja"
+  ON movimientos_caja FOR SELECT
   USING (true);
 
 -- Políticas de ESCRITURA para el panel de administración
@@ -121,6 +144,49 @@ CREATE POLICY "Permitir insertar categorias"
 CREATE POLICY "Permitir actualizar categorias"
   ON categorias FOR UPDATE
   USING (true);
+
+CREATE POLICY "Permitir eliminar categorias"
+  ON categorias FOR DELETE
+  USING (true);
+
+CREATE POLICY "Permitir insertar movimientos_caja"
+  ON movimientos_caja FOR INSERT
+  WITH CHECK (true);
+
+CREATE POLICY "Permitir actualizar movimientos_caja"
+  ON movimientos_caja FOR UPDATE
+  USING (true);
+
+CREATE POLICY "Permitir eliminar movimientos_caja"
+  ON movimientos_caja FOR DELETE
+  USING (true);
+
+-- ──────────────────────────────────────────────
+-- SUPABASE STORAGE: Bucket 'productos' para imágenes
+-- ──────────────────────────────────────────────
+INSERT INTO storage.buckets (id, name, public) 
+VALUES ('productos', 'productos', true) 
+ON CONFLICT (id) DO UPDATE SET public = true;
+
+DROP POLICY IF EXISTS "Acceso público de lectura a imágenes de productos" ON storage.objects;
+CREATE POLICY "Acceso público de lectura a imágenes de productos" 
+  ON storage.objects FOR SELECT 
+  USING (bucket_id = 'productos');
+
+DROP POLICY IF EXISTS "Permitir subida de imágenes a admin y anon" ON storage.objects;
+CREATE POLICY "Permitir subida de imágenes a admin y anon" 
+  ON storage.objects FOR INSERT 
+  WITH CHECK (bucket_id = 'productos');
+
+DROP POLICY IF EXISTS "Permitir actualización de imágenes en productos" ON storage.objects;
+CREATE POLICY "Permitir actualización de imágenes en productos" 
+  ON storage.objects FOR UPDATE 
+  USING (bucket_id = 'productos');
+
+DROP POLICY IF EXISTS "Permitir borrado de imágenes en productos" ON storage.objects;
+CREATE POLICY "Permitir borrado de imágenes en productos" 
+  ON storage.objects FOR DELETE 
+  USING (bucket_id = 'productos');
 
 -- ──────────────────────────────────────────────
 -- DATOS INICIALES DE EJEMPLO (seed)

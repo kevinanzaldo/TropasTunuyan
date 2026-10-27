@@ -6,6 +6,9 @@ import Link from 'next/link';
 import type { ProductoConVariantes, Categoria, Variante } from '@/types/database';
 import { supabase } from '@/lib/supabase';
 import { formatPrecio } from '@/lib/utils';
+import CalculadorPrecioTactico from '@/components/admin/CalculadorPrecioTactico';
+import CargadorImagenTactico from '@/components/admin/CargadorImagenTactico';
+import ModalGestionCategorias from '@/components/admin/ModalGestionCategorias';
 
 interface Props {
   initialProductos: ProductoConVariantes[];
@@ -45,6 +48,8 @@ const CATEGORIA_META: Record<string, { desc: string; badgeColor: string }> = {
 
 export default function AdminInventarioClient({ initialProductos, categorias }: Props) {
   const [productos, setProductos] = useState<ProductoConVariantes[]>(initialProductos);
+  const [listaCategorias, setListaCategorias] = useState<Categoria[]>(categorias);
+  const [modalCategoriasAbierto, setModalCategoriasAbierto] = useState(false);
   const [busqueda, setBusqueda] = useState('');
   const [filtroAlerta, setFiltroAlerta] = useState<'todos' | 'bajo-stock' | 'credencial'>('todos');
   const [categoriaFiltro, setCategoriaFiltro] = useState<string | null>(null);
@@ -66,7 +71,7 @@ export default function AdminInventarioClient({ initialProductos, categorias }: 
 
   // Helper para obtener nombre de categoría
   const getNombreCategoria = (p: ProductoConVariantes) => {
-    return p.categorias?.nombre || categorias.find((c) => c.id === p.categoria_id)?.nombre || 'General';
+    return p.categorias?.nombre || listaCategorias.find((c) => c.id === p.categoria_id)?.nombre || 'General';
   };
 
   // ─── KPIs Calculados ───
@@ -113,7 +118,7 @@ export default function AdminInventarioClient({ initialProductos, categorias }: 
     const grupos: Record<string, ProductoConVariantes[]> = {};
 
     // Inicializar grupos con las categorías disponibles en el orden establecido
-    categorias.forEach((cat) => {
+    listaCategorias.forEach((cat) => {
       grupos[cat.nombre] = [];
     });
 
@@ -130,7 +135,7 @@ export default function AdminInventarioClient({ initialProductos, categorias }: 
       if (categoriaFiltro) return nombre === categoriaFiltro;
       return prods.length > 0;
     });
-  }, [productosFiltrados, categorias, categoriaFiltro]);
+  }, [productosFiltrados, listaCategorias, categoriaFiltro]);
 
   // ─── Acción: Copiar Resumen de Stock ───
   const handleCopiarReporteStock = () => {
@@ -268,7 +273,17 @@ export default function AdminInventarioClient({ initialProductos, categorias }: 
           </p>
         </div>
 
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2.5 sm:gap-3 flex-wrap">
+          <button
+            onClick={() => setModalCategoriasAbierto(true)}
+            className="btn-secondary text-xs sm:text-sm px-3.5 py-2.5"
+            title="Crear y administrar categorías personalizadas"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4 text-militar-600 dark:text-militar-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M4 20h16a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.93a2 2 0 0 1-1.66-.9l-.82-1.2A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13c0 1.1.9 2 2 2Z" />
+            </svg>
+            Categorías ({listaCategorias.length})
+          </button>
           <button
             onClick={() => setModalNuevoAbierto(true)}
             className="btn-primary text-xs sm:text-sm px-4 py-2.5"
@@ -281,7 +296,7 @@ export default function AdminInventarioClient({ initialProductos, categorias }: 
           </button>
           <Link
             href="/catalogo"
-            className="btn-secondary text-xs sm:text-sm px-4 py-2.5"
+            className="btn-secondary text-xs sm:text-sm px-3.5 py-2.5"
             target="_blank"
           >
             Ver Catálogo
@@ -303,7 +318,7 @@ export default function AdminInventarioClient({ initialProductos, categorias }: 
             </div>
           </div>
           <div className="text-3xl font-display font-black text-zinc-900 dark:text-white">{productos.length}</div>
-          <div className="text-xs text-zinc-500 mt-1 font-medium">{categorias.length} categorías activas</div>
+          <div className="text-xs text-zinc-500 mt-1 font-medium">{listaCategorias.length} categorías activas</div>
         </div>
 
         {/* KPI 2: Total Unidades */}
@@ -448,7 +463,7 @@ export default function AdminInventarioClient({ initialProductos, categorias }: 
               </span>
             </button>
 
-            {categorias.map((cat) => {
+            {listaCategorias.map((cat) => {
               const count = productos.filter((p) => getNombreCategoria(p) === cat.nombre).length;
               const isSelected = categoriaFiltro === cat.nombre;
 
@@ -469,6 +484,15 @@ export default function AdminInventarioClient({ initialProductos, categorias }: 
                 </button>
               );
             })}
+
+            <button
+              onClick={() => setModalCategoriasAbierto(true)}
+              className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-xs font-semibold text-militar-700 dark:text-militar-400 bg-militar-50 dark:bg-militar-950/40 border border-dashed border-militar-300 dark:border-militar-700/60 hover:bg-militar-100 dark:hover:bg-militar-900/40 transition-colors flex-shrink-0"
+              title="Añadir o editar categorías personalizadas"
+            >
+              <span>+</span>
+              <span>Categoría</span>
+            </button>
           </div>
 
           {/* Acciones Rápidas & Switch de Modo */}
@@ -964,11 +988,23 @@ export default function AdminInventarioClient({ initialProductos, categorias }: 
         </div>
       )}
 
+      {/* ─── MODAL 1: Gestión de Categorías ─── */}
+      {modalCategoriasAbierto && (
+        <ModalGestionCategorias
+          categorias={listaCategorias}
+          productos={productos}
+          onClose={() => setModalCategoriasAbierto(false)}
+          onCategoriasChange={(nuevas) => setListaCategorias(nuevas)}
+          onToast={mostrarToast}
+        />
+      )}
+
       {/* ─── MODAL 2: Editar Producto ─── */}
       {productoAEditar && (
         <ModalEditarProducto
           producto={productoAEditar}
-          categorias={categorias}
+          categorias={listaCategorias}
+          onNuevaCategoriaCreada={(nueva) => setListaCategorias((prev) => [...prev, nueva])}
           onClose={() => setProductoAEditar(null)}
           onGuardado={(prodActualizado) => {
             setProductos((prev) => prev.map((p) => (p.id === prodActualizado.id ? prodActualizado : p)));
@@ -981,7 +1017,8 @@ export default function AdminInventarioClient({ initialProductos, categorias }: 
       {/* ─── MODAL 3: Alta de Nuevo Producto ─── */}
       {modalNuevoAbierto && (
         <ModalNuevoProducto
-          categorias={categorias}
+          categorias={listaCategorias}
+          onNuevaCategoriaCreada={(nueva) => setListaCategorias((prev) => [...prev, nueva])}
           onClose={() => setModalNuevoAbierto(false)}
           onCreado={(nuevoProd) => {
             setProductos((prev) => [nuevoProd, ...prev]);
@@ -995,126 +1032,219 @@ export default function AdminInventarioClient({ initialProductos, categorias }: 
 }
 
 // ─────────────────────────────────────────────────────────────
-// Sub-Modal: Editar Producto
+// Sub-Modal: Editar Producto con Cálculo Inteligente y Carga Dual
 // ─────────────────────────────────────────────────────────────
 function ModalEditarProducto({
   producto,
   categorias,
+  onNuevaCategoriaCreada,
   onClose,
   onGuardado,
 }: {
   producto: ProductoConVariantes;
   categorias: Categoria[];
+  onNuevaCategoriaCreada?: (cat: Categoria) => void;
   onClose: () => void;
   onGuardado: (p: ProductoConVariantes) => void;
 }) {
   const [nombre, setNombre] = useState(producto.nombre);
   const [descripcion, setDescripcion] = useState(producto.descripcion || '');
-  const [precio, setPrecio] = useState(producto.precio.toString());
+  const [costo, setCosto] = useState<number>(producto.costo || 0);
+  const [margen, setMargen] = useState<number>(
+    producto.porcentaje_ganancia ||
+      (producto.costo && producto.precio > producto.costo
+        ? Math.round(((producto.precio - producto.costo) / producto.costo) * 100)
+        : 40)
+  );
+  const [precio, setPrecio] = useState<number>(producto.precio || 0);
   const [categoriaId, setCategoriaId] = useState(producto.categoria_id || '');
   const [exigeCredencial, setExigeCredencial] = useState(producto.exige_credencial);
   const [imagenUrl, setImagenUrl] = useState(producto.imagen_url || '');
   const [guardando, setGuardando] = useState(false);
 
+  // Categoría rápida inline
+  const [mostrarNuevaCat, setMostrarNuevaCat] = useState(false);
+  const [nombreNuevaCat, setNombreNuevaCat] = useState('');
+  const [guardandoCat, setGuardandoCat] = useState(false);
+
+  const handleCrearCategoriaRapida = async () => {
+    if (!nombreNuevaCat.trim()) return;
+    setGuardandoCat(true);
+    const { data, error } = await supabase
+      .from('categorias')
+      .insert({ nombre: nombreNuevaCat.trim(), orden: categorias.length + 1 })
+      .select('*')
+      .single();
+    setGuardandoCat(false);
+
+    if (error) {
+      alert(`Error al crear categoría: ${error.message}`);
+    } else if (data) {
+      onNuevaCategoriaCreada?.(data as Categoria);
+      setCategoriaId(data.id);
+      setNombreNuevaCat('');
+      setMostrarNuevaCat(false);
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setGuardando(true);
 
-    const precioNum = parseFloat(precio) || 0;
+    const payload = {
+      nombre,
+      descripcion: descripcion.trim() || null,
+      precio: Number(precio) || 0,
+      costo: Number(costo) || 0,
+      porcentaje_ganancia: Number(margen) || 0,
+      categoria_id: categoriaId || null,
+      exige_credencial: exigeCredencial,
+      imagen_url: imagenUrl || null,
+      updated_at: new Date().toISOString(),
+    };
 
-    const { data, error } = await supabase
+    let updateRes = await supabase
       .from('productos')
-      .update({
-        nombre,
-        descripcion,
-        precio: precioNum,
-        categoria_id: categoriaId || null,
-        exige_credencial: exigeCredencial,
-        imagen_url: imagenUrl || null,
-        updated_at: new Date().toISOString(),
-      })
+      .update(payload)
       .eq('id', producto.id)
       .select('*, variantes (*), categorias (*)')
       .single();
 
+    const esErrorColumnaInexistente = (err: unknown) => {
+      if (!err || typeof err !== 'object') return false;
+      const errorObj = err as { code?: string; message?: string };
+      const code = errorObj.code || '';
+      const msg = errorObj.message || '';
+      return (
+        code === 'PGRST204' ||
+        code === '42703' ||
+        msg.includes('costo') ||
+        msg.includes('porcentaje_ganancia') ||
+        msg.includes('schema cache') ||
+        msg.includes('column')
+      );
+    };
+
+    if (updateRes.error && esErrorColumnaInexistente(updateRes.error)) {
+      // Si la columna costo no existe aún en Supabase, reintentar sin costo ni ganancia
+      const { costo: _c, porcentaje_ganancia: _p, ...payloadSinCostos } = payload;
+      updateRes = await supabase
+        .from('productos')
+        .update(payloadSinCostos)
+        .eq('id', producto.id)
+        .select('*, variantes (*), categorias (*)')
+        .single();
+    }
+
     setGuardando(false);
 
-    if (error) {
-      alert(`Error al guardar: ${error.message}`);
+    if (updateRes.error) {
+      alert(`Error al guardar: ${updateRes.error.message}`);
     } else {
-      onGuardado(data as ProductoConVariantes);
+      onGuardado(updateRes.data as ProductoConVariantes);
     }
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 dark:bg-black/80 backdrop-blur-sm animate-fade-in">
-      <div className="relative w-full max-w-lg bg-white dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded-2xl p-6 shadow-2xl space-y-4 max-h-[90vh] overflow-y-auto">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm animate-fade-in">
+      <div className="relative w-full max-w-2xl bg-white dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded-2xl p-6 shadow-2xl space-y-4 max-h-[90vh] overflow-y-auto">
         <div className="flex items-center justify-between pb-3 border-b border-zinc-200 dark:border-zinc-800">
-          <h3 className="text-lg font-display font-bold text-zinc-900 dark:text-white">Editar Producto</h3>
+          <div>
+            <h3 className="text-lg font-display font-bold text-zinc-900 dark:text-white">Editar Producto</h3>
+            <p className="text-xs text-zinc-500">Ajuste de ficha técnica, costos, precios e imagen</p>
+          </div>
           <button onClick={onClose} className="p-1.5 text-zinc-400 hover:text-zinc-900 dark:hover:text-white rounded-lg hover:bg-zinc-100 dark:hover:bg-zinc-800">✕</button>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-4 text-xs sm:text-sm">
-          <div>
-            <label className="block text-zinc-700 dark:text-zinc-400 font-semibold mb-1">Nombre del Producto</label>
-            <input
-              type="text"
-              required
-              value={nombre}
-              onChange={(e) => setNombre(e.target.value)}
-              className="w-full px-3.5 py-2 rounded-lg bg-zinc-50 dark:bg-zinc-900 border border-zinc-300 dark:border-zinc-800 text-zinc-900 dark:text-white focus:outline-none focus:border-militar-500"
-            />
+          {/* Nombre y Categoría */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label className="block text-zinc-700 dark:text-zinc-300 font-semibold mb-1">Nombre del Producto *</label>
+              <input
+                type="text"
+                required
+                value={nombre}
+                onChange={(e) => setNombre(e.target.value)}
+                className="w-full px-3.5 py-2 rounded-lg bg-zinc-50 dark:bg-zinc-900 border border-zinc-300 dark:border-zinc-800 text-zinc-900 dark:text-white focus:outline-none focus:border-militar-500"
+              />
+            </div>
+
+            <div>
+              <div className="flex items-center justify-between mb-1">
+                <label className="block text-zinc-700 dark:text-zinc-300 font-semibold">Categoría *</label>
+                <button
+                  type="button"
+                  onClick={() => setMostrarNuevaCat(!mostrarNuevaCat)}
+                  className="text-[11px] text-militar-600 dark:text-militar-400 font-bold hover:underline"
+                >
+                  {mostrarNuevaCat ? '✕ Cancelar' : '+ Nueva Categoría'}
+                </button>
+              </div>
+
+              {mostrarNuevaCat ? (
+                <div className="flex gap-2">
+                  <input
+                    type="text"
+                    placeholder="Nueva categoría..."
+                    value={nombreNuevaCat}
+                    onChange={(e) => setNombreNuevaCat(e.target.value)}
+                    className="flex-1 px-3 py-1.5 text-xs bg-zinc-50 dark:bg-zinc-900 border border-zinc-300 dark:border-zinc-800 rounded-lg text-zinc-900 dark:text-white focus:outline-none focus:border-militar-500"
+                  />
+                  <button
+                    type="button"
+                    onClick={handleCrearCategoriaRapida}
+                    disabled={guardandoCat || !nombreNuevaCat.trim()}
+                    className="px-3 py-1.5 text-xs rounded-lg bg-militar-600 text-white font-bold disabled:opacity-50"
+                  >
+                    {guardandoCat ? '...' : 'Crear'}
+                  </button>
+                </div>
+              ) : (
+                <select
+                  value={categoriaId}
+                  onChange={(e) => setCategoriaId(e.target.value)}
+                  className="w-full px-3.5 py-2 rounded-lg bg-zinc-50 dark:bg-zinc-900 border border-zinc-300 dark:border-zinc-800 text-zinc-900 dark:text-white focus:outline-none focus:border-militar-500"
+                >
+                  <option value="">Seleccionar categoría...</option>
+                  {categorias.map((c) => (
+                    <option key={c.id} value={c.id}>{c.nombre}</option>
+                  ))}
+                </select>
+              )}
+            </div>
           </div>
 
-          <div>
-            <label className="block text-zinc-700 dark:text-zinc-400 font-semibold mb-1">Categoría</label>
-            <select
-              value={categoriaId}
-              onChange={(e) => setCategoriaId(e.target.value)}
-              className="w-full px-3.5 py-2 rounded-lg bg-zinc-50 dark:bg-zinc-900 border border-zinc-300 dark:border-zinc-800 text-zinc-900 dark:text-white focus:outline-none focus:border-militar-500"
-            >
-              <option value="">Seleccionar categoría...</option>
-              {categorias.map((c) => (
-                <option key={c.id} value={c.id}>{c.nombre}</option>
-              ))}
-            </select>
-          </div>
+          {/* Cálculo Inteligente de Precios */}
+          <CalculadorPrecioTactico
+            costo={costo}
+            setCosto={setCosto}
+            margen={margen}
+            setMargen={setMargen}
+            precio={precio}
+            setPrecio={setPrecio}
+          />
 
-          <div>
-            <label className="block text-zinc-700 dark:text-zinc-400 font-semibold mb-1">Precio Oficial ($)</label>
-            <input
-              type="number"
-              step="0.01"
-              required
-              value={precio}
-              onChange={(e) => setPrecio(e.target.value)}
-              className="w-full px-3.5 py-2 rounded-lg bg-zinc-50 dark:bg-zinc-900 border border-zinc-300 dark:border-zinc-800 text-zinc-900 dark:text-white font-mono focus:outline-none focus:border-militar-500"
-            />
-          </div>
+          {/* Cargador de Imágenes Dual */}
+          <CargadorImagenTactico
+            imagenUrl={imagenUrl}
+            setImagenUrl={setImagenUrl}
+            nombreProducto={nombre}
+          />
 
+          {/* Descripción */}
           <div>
-            <label className="block text-zinc-700 dark:text-zinc-400 font-semibold mb-1">URL de Imagen</label>
-            <input
-              type="text"
-              placeholder="/productos/borcegui.png o https://..."
-              value={imagenUrl}
-              onChange={(e) => setImagenUrl(e.target.value)}
-              className="w-full px-3.5 py-2 rounded-lg bg-zinc-50 dark:bg-zinc-900 border border-zinc-300 dark:border-zinc-800 text-zinc-900 dark:text-white focus:outline-none focus:border-militar-500"
-            />
-            <p className="text-[11px] text-zinc-500 mt-1">Podés colocar la ruta local (/productos/...) o cualquier enlace web.</p>
-          </div>
-
-          <div>
-            <label className="block text-zinc-700 dark:text-zinc-400 font-semibold mb-1">Descripción</label>
+            <label className="block text-zinc-700 dark:text-zinc-300 font-semibold mb-1">Descripción Operativa</label>
             <textarea
-              rows={3}
+              rows={2}
               value={descripcion}
               onChange={(e) => setDescripcion(e.target.value)}
               className="w-full px-3.5 py-2 rounded-lg bg-zinc-50 dark:bg-zinc-900 border border-zinc-300 dark:border-zinc-800 text-zinc-900 dark:text-white focus:outline-none focus:border-militar-500"
             />
           </div>
 
-          <div className="flex items-center gap-3 pt-2">
+          {/* Credencial */}
+          <div className="flex items-center gap-3 p-3 rounded-xl bg-zinc-50 dark:bg-zinc-900/50 border border-zinc-200 dark:border-zinc-800">
             <input
               type="checkbox"
               id="edit-credencial"
@@ -1122,14 +1252,15 @@ function ModalEditarProducto({
               onChange={(e) => setExigeCredencial(e.target.checked)}
               className="w-4 h-4 rounded text-militar-600 focus:ring-militar-500 bg-zinc-100 dark:bg-zinc-900 border-zinc-300 dark:border-zinc-700"
             />
-            <label htmlFor="edit-credencial" className="text-zinc-800 dark:text-zinc-300 font-semibold">
-              Requiere Credencial Obligatoria (Uso exclusivo Fuerzas)
+            <label htmlFor="edit-credencial" className="text-zinc-800 dark:text-zinc-200 font-semibold cursor-pointer">
+              Exige Credencial Oficial Obligatoria (Uso exclusivo Fuerzas Armadas & Seguridad Privada)
             </label>
           </div>
 
-          <div className="pt-4 border-t border-zinc-200 dark:border-zinc-800 flex justify-end gap-3">
+          {/* Botones de acción */}
+          <div className="pt-3 border-t border-zinc-200 dark:border-zinc-800 flex justify-end gap-3">
             <button type="button" onClick={onClose} className="btn-secondary text-xs">Cancelar</button>
-            <button type="submit" disabled={guardando} className="btn-primary text-xs">
+            <button type="submit" disabled={guardando} className="btn-primary text-xs px-5 py-2.5">
               {guardando ? 'Guardando...' : 'Guardar Cambios'}
             </button>
           </div>
@@ -1140,30 +1271,82 @@ function ModalEditarProducto({
 }
 
 // ─────────────────────────────────────────────────────────────
-// Sub-Modal: Nuevo Producto + Variantes Iniciales
+// Sub-Modal: Nuevo Producto + Variantes Iniciales + Cálculo Inteligente
 // ─────────────────────────────────────────────────────────────
 function ModalNuevoProducto({
   categorias,
+  onNuevaCategoriaCreada,
   onClose,
   onCreado,
 }: {
   categorias: Categoria[];
+  onNuevaCategoriaCreada?: (cat: Categoria) => void;
   onClose: () => void;
   onCreado: (p: ProductoConVariantes) => void;
 }) {
   const [nombre, setNombre] = useState('');
   const [descripcion, setDescripcion] = useState('');
-  const [precio, setPrecio] = useState('');
+  const [costo, setCosto] = useState<number>(0);
+  const [margen, setMargen] = useState<number>(40);
+  const [precio, setPrecio] = useState<number>(0);
   const [categoriaId, setCategoriaId] = useState(categorias[0]?.id || '');
   const [exigeCredencial, setExigeCredencial] = useState(false);
   const [imagenUrl, setImagenUrl] = useState('');
   const [guardando, setGuardando] = useState(false);
+
+  // Categoría rápida inline
+  const [mostrarNuevaCat, setMostrarNuevaCat] = useState(false);
+  const [nombreNuevaCat, setNombreNuevaCat] = useState('');
+  const [guardandoCat, setGuardandoCat] = useState(false);
 
   // Variantes dinámicas a crear
   const [variantes, setVariantes] = useState<Array<{ talle: string; color: string; stock: number; stock_minimo: number }>>([
     { talle: 'M', color: 'Negro', stock: 10, stock_minimo: 3 },
     { talle: 'L', color: 'Negro', stock: 10, stock_minimo: 3 },
   ]);
+
+  const handleCrearCategoriaRapida = async () => {
+    if (!nombreNuevaCat.trim()) return;
+    setGuardandoCat(true);
+    const { data, error } = await supabase
+      .from('categorias')
+      .insert({ nombre: nombreNuevaCat.trim(), orden: categorias.length + 1 })
+      .select('*')
+      .single();
+    setGuardandoCat(false);
+
+    if (error) {
+      alert(`Error al crear categoría: ${error.message}`);
+    } else if (data) {
+      onNuevaCategoriaCreada?.(data as Categoria);
+      setCategoriaId(data.id);
+      setNombreNuevaCat('');
+      setMostrarNuevaCat(false);
+    }
+  };
+
+  const aplicarPresetTalles = (tipo: 'indumentaria' | 'calzado' | 'unico') => {
+    if (tipo === 'indumentaria') {
+      setVariantes([
+        { talle: 'S', color: 'Verde Oliva', stock: 5, stock_minimo: 2 },
+        { talle: 'M', color: 'Verde Oliva', stock: 10, stock_minimo: 3 },
+        { talle: 'L', color: 'Verde Oliva', stock: 10, stock_minimo: 3 },
+        { talle: 'XL', color: 'Verde Oliva', stock: 5, stock_minimo: 2 },
+      ]);
+    } else if (tipo === 'calzado') {
+      setVariantes([
+        { talle: '39', color: 'Negro', stock: 4, stock_minimo: 2 },
+        { talle: '40', color: 'Negro', stock: 8, stock_minimo: 3 },
+        { talle: '41', color: 'Negro', stock: 10, stock_minimo: 3 },
+        { talle: '42', color: 'Negro', stock: 8, stock_minimo: 3 },
+        { talle: '43', color: 'Negro', stock: 4, stock_minimo: 2 },
+      ]);
+    } else {
+      setVariantes([
+        { talle: 'Único', color: 'Negro', stock: 15, stock_minimo: 5 },
+      ]);
+    }
+  };
 
   const agregarFilaVariante = () => {
     setVariantes([...variantes, { talle: 'XL', color: 'Negro', stock: 5, stock_minimo: 2 }]);
@@ -1177,32 +1360,58 @@ function ModalNuevoProducto({
     e.preventDefault();
     setGuardando(true);
 
-    const precioNum = parseFloat(precio) || 0;
+    const payload = {
+      nombre,
+      descripcion: descripcion.trim() || null,
+      precio: Number(precio) || 0,
+      costo: Number(costo) || 0,
+      porcentaje_ganancia: Number(margen) || 0,
+      categoria_id: categoriaId || null,
+      exige_credencial: exigeCredencial,
+      imagen_url: imagenUrl || null,
+      activo: true,
+    };
 
-    // 1. Insertar Producto
-    const { data: productoData, error: prodError } = await supabase
+    // 1. Insertar Producto (con fallback si no existen columnas costo todavía)
+    let prodRes = await supabase
       .from('productos')
-      .insert({
-        nombre,
-        descripcion,
-        precio: precioNum,
-        categoria_id: categoriaId || null,
-        exige_credencial: exigeCredencial,
-        imagen_url: imagenUrl || null,
-        activo: true,
-      })
+      .insert(payload)
       .select('*, categorias (*)')
       .single();
 
-    if (prodError || !productoData) {
-      alert(`Error al crear producto: ${prodError?.message}`);
+    const esErrorColumnaInexistente = (err: unknown) => {
+      if (!err || typeof err !== 'object') return false;
+      const errorObj = err as { code?: string; message?: string };
+      const code = errorObj.code || '';
+      const msg = errorObj.message || '';
+      return (
+        code === 'PGRST204' ||
+        code === '42703' ||
+        msg.includes('costo') ||
+        msg.includes('porcentaje_ganancia') ||
+        msg.includes('schema cache') ||
+        msg.includes('column')
+      );
+    };
+
+    if (prodRes.error && esErrorColumnaInexistente(prodRes.error)) {
+      const { costo: _c, porcentaje_ganancia: _p, ...payloadSinCostos } = payload;
+      prodRes = await supabase
+        .from('productos')
+        .insert(payloadSinCostos)
+        .select('*, categorias (*)')
+        .single();
+    }
+
+    if (prodRes.error || !prodRes.data) {
+      alert(`Error al crear producto: ${prodRes.error?.message}`);
       setGuardando(false);
       return;
     }
 
     // 2. Insertar Variantes
     const variantesAInsertar = variantes.map((v) => ({
-      producto_id: productoData.id,
+      producto_id: prodRes.data.id,
       talle: v.talle,
       color: v.color,
       stock: v.stock,
@@ -1217,11 +1426,11 @@ function ModalNuevoProducto({
     setGuardando(false);
 
     if (varError) {
-      alert(`Producto creado pero hubo error en variantes: ${varError.message}`);
+      alert(`Producto creado pero hubo un detalle con variantes: ${varError.message}`);
     }
 
     const productoCompleto: ProductoConVariantes = {
-      ...productoData,
+      ...prodRes.data,
       variantes: (varData as Variante[]) || [],
     };
 
@@ -1229,79 +1438,106 @@ function ModalNuevoProducto({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 dark:bg-black/80 backdrop-blur-sm animate-fade-in">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm animate-fade-in">
       <div className="relative w-full max-w-2xl bg-white dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded-2xl p-6 shadow-2xl space-y-4 max-h-[90vh] overflow-y-auto">
         <div className="flex items-center justify-between pb-3 border-b border-zinc-200 dark:border-zinc-800">
-          <h3 className="text-lg font-display font-bold text-zinc-900 dark:text-white">Alta de Nuevo Producto</h3>
+          <div>
+            <h3 className="text-lg font-display font-bold text-zinc-900 dark:text-white">Alta de Nuevo Producto</h3>
+            <p className="text-xs text-zinc-500">Completá ficha técnica, costos, precio y variantes de stock</p>
+          </div>
           <button onClick={onClose} className="p-1.5 text-zinc-400 hover:text-zinc-900 dark:hover:text-white rounded-lg hover:bg-zinc-100 dark:hover:bg-zinc-800">✕</button>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-4 text-xs sm:text-sm">
+          {/* Nombre y Categoría */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-              <label className="block text-zinc-700 dark:text-zinc-400 font-semibold mb-1">Nombre</label>
+              <label className="block text-zinc-700 dark:text-zinc-300 font-semibold mb-1">Nombre del Artículo *</label>
               <input
                 type="text"
                 required
-                placeholder="Ej. Guantes Tácticos Reforzados"
+                placeholder="Ej. Guantes Tácticos de Asalto"
                 value={nombre}
                 onChange={(e) => setNombre(e.target.value)}
-                className="w-full px-3.5 py-2 rounded-lg bg-zinc-50 dark:bg-zinc-900 border border-zinc-300 dark:border-zinc-800 text-zinc-900 dark:text-white placeholder-zinc-400 dark:placeholder-zinc-500 focus:outline-none focus:border-militar-500"
+                className="w-full px-3.5 py-2 rounded-lg bg-zinc-50 dark:bg-zinc-900 border border-zinc-300 dark:border-zinc-800 text-zinc-900 dark:text-white placeholder-zinc-400 focus:outline-none focus:border-militar-500"
               />
             </div>
 
             <div>
-              <label className="block text-zinc-700 dark:text-zinc-400 font-semibold mb-1">Categoría</label>
-              <select
-                value={categoriaId}
-                onChange={(e) => setCategoriaId(e.target.value)}
-                className="w-full px-3.5 py-2 rounded-lg bg-zinc-50 dark:bg-zinc-900 border border-zinc-300 dark:border-zinc-800 text-zinc-900 dark:text-white focus:outline-none focus:border-militar-500"
-              >
-                {categorias.map((c) => (
-                  <option key={c.id} value={c.id}>{c.nombre}</option>
-                ))}
-              </select>
+              <div className="flex items-center justify-between mb-1">
+                <label className="block text-zinc-700 dark:text-zinc-300 font-semibold">Categoría *</label>
+                <button
+                  type="button"
+                  onClick={() => setMostrarNuevaCat(!mostrarNuevaCat)}
+                  className="text-[11px] text-militar-600 dark:text-militar-400 font-bold hover:underline"
+                >
+                  {mostrarNuevaCat ? '✕ Cancelar' : '+ Nueva Categoría'}
+                </button>
+              </div>
+
+              {mostrarNuevaCat ? (
+                <div className="flex gap-2">
+                  <input
+                    type="text"
+                    placeholder="Nueva categoría..."
+                    value={nombreNuevaCat}
+                    onChange={(e) => setNombreNuevaCat(e.target.value)}
+                    className="flex-1 px-3 py-1.5 text-xs bg-zinc-50 dark:bg-zinc-900 border border-zinc-300 dark:border-zinc-800 rounded-lg text-zinc-900 dark:text-white focus:outline-none focus:border-militar-500"
+                  />
+                  <button
+                    type="button"
+                    onClick={handleCrearCategoriaRapida}
+                    disabled={guardandoCat || !nombreNuevaCat.trim()}
+                    className="px-3 py-1.5 text-xs rounded-lg bg-militar-600 text-white font-bold disabled:opacity-50"
+                  >
+                    {guardandoCat ? '...' : 'Crear'}
+                  </button>
+                </div>
+              ) : (
+                <select
+                  value={categoriaId}
+                  onChange={(e) => setCategoriaId(e.target.value)}
+                  className="w-full px-3.5 py-2 rounded-lg bg-zinc-50 dark:bg-zinc-900 border border-zinc-300 dark:border-zinc-800 text-zinc-900 dark:text-white focus:outline-none focus:border-militar-500"
+                >
+                  {categorias.map((c) => (
+                    <option key={c.id} value={c.id}>{c.nombre}</option>
+                  ))}
+                </select>
+              )}
             </div>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div>
-              <label className="block text-zinc-700 dark:text-zinc-400 font-semibold mb-1">Precio Oficial ($)</label>
-              <input
-                type="number"
-                step="0.01"
-                required
-                placeholder="0.00"
-                value={precio}
-                onChange={(e) => setPrecio(e.target.value)}
-                className="w-full px-3.5 py-2 rounded-lg bg-zinc-50 dark:bg-zinc-900 border border-zinc-300 dark:border-zinc-800 text-zinc-900 dark:text-white font-mono focus:outline-none focus:border-militar-500"
-              />
-            </div>
+          {/* Cálculo Inteligente de Precios */}
+          <CalculadorPrecioTactico
+            costo={costo}
+            setCosto={setCosto}
+            margen={margen}
+            setMargen={setMargen}
+            precio={precio}
+            setPrecio={setPrecio}
+          />
 
-            <div>
-              <label className="block text-zinc-700 dark:text-zinc-400 font-semibold mb-1">URL de Imagen</label>
-              <input
-                type="text"
-                placeholder="/productos/... o https://..."
-                value={imagenUrl}
-                onChange={(e) => setImagenUrl(e.target.value)}
-                className="w-full px-3.5 py-2 rounded-lg bg-zinc-50 dark:bg-zinc-900 border border-zinc-300 dark:border-zinc-800 text-zinc-900 dark:text-white placeholder-zinc-400 dark:placeholder-zinc-500 focus:outline-none focus:border-militar-500"
-              />
-            </div>
-          </div>
+          {/* Cargador de Imágenes Dual */}
+          <CargadorImagenTactico
+            imagenUrl={imagenUrl}
+            setImagenUrl={setImagenUrl}
+            nombreProducto={nombre}
+          />
 
+          {/* Descripción */}
           <div>
-            <label className="block text-zinc-700 dark:text-zinc-400 font-semibold mb-1">Descripción</label>
+            <label className="block text-zinc-700 dark:text-zinc-300 font-semibold mb-1">Descripción Operativa</label>
             <textarea
               rows={2}
-              placeholder="Características técnicas, materiales y uso..."
+              placeholder="Material ripstop, especificaciones militares, uso reglamentario..."
               value={descripcion}
               onChange={(e) => setDescripcion(e.target.value)}
-              className="w-full px-3.5 py-2 rounded-lg bg-zinc-50 dark:bg-zinc-900 border border-zinc-300 dark:border-zinc-800 text-zinc-900 dark:text-white placeholder-zinc-400 dark:placeholder-zinc-500 focus:outline-none focus:border-militar-500"
+              className="w-full px-3.5 py-2 rounded-lg bg-zinc-50 dark:bg-zinc-900 border border-zinc-300 dark:border-zinc-800 text-zinc-900 dark:text-white placeholder-zinc-400 focus:outline-none focus:border-militar-500"
             />
           </div>
 
-          <div className="flex items-center gap-3 pt-1">
+          {/* Credencial Obligatoria */}
+          <div className="flex items-center gap-3 p-3 rounded-xl bg-zinc-50 dark:bg-zinc-900/50 border border-zinc-200 dark:border-zinc-800">
             <input
               type="checkbox"
               id="new-credencial"
@@ -1309,29 +1545,61 @@ function ModalNuevoProducto({
               onChange={(e) => setExigeCredencial(e.target.checked)}
               className="w-4 h-4 rounded text-militar-600 focus:ring-militar-500 bg-zinc-100 dark:bg-zinc-900 border-zinc-300 dark:border-zinc-700"
             />
-            <label htmlFor="new-credencial" className="text-zinc-800 dark:text-zinc-300 font-semibold">
-              Requiere Credencial Obligatoria (Uso exclusivo Fuerzas)
+            <label htmlFor="new-credencial" className="text-zinc-800 dark:text-zinc-200 font-semibold cursor-pointer">
+              Exige Credencial Oficial Obligatoria (Uso exclusivo Fuerzas Armadas & Seguridad Privada)
             </label>
           </div>
 
-          {/* Variantes Iniciales */}
+          {/* Variantes Iniciales de Stock */}
           <div className="pt-3 border-t border-zinc-200 dark:border-zinc-800">
             <div className="flex items-center justify-between mb-2">
-              <label className="text-xs font-bold text-zinc-700 dark:text-zinc-400 uppercase tracking-wider">
+              <label className="text-xs font-bold text-zinc-700 dark:text-zinc-300 uppercase tracking-wider">
                 Variantes Iniciales (Talles / Colores / Stock)
               </label>
-              <button
-                type="button"
-                onClick={agregarFilaVariante}
-                className="text-xs text-militar-700 dark:text-militar-400 hover:text-militar-800 dark:hover:text-militar-300 font-semibold"
-              >
-                + Agregar Talle
-              </button>
+              <div className="flex items-center gap-2">
+                <span className="text-[10px] text-zinc-500">Plantillas:</span>
+                <button
+                  type="button"
+                  onClick={() => aplicarPresetTalles('indumentaria')}
+                  className="text-[10px] px-1.5 py-0.5 rounded bg-zinc-200 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-300 hover:bg-zinc-300"
+                >
+                  Ropa S-XL
+                </button>
+                <button
+                  type="button"
+                  onClick={() => aplicarPresetTalles('calzado')}
+                  className="text-[10px] px-1.5 py-0.5 rounded bg-zinc-200 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-300 hover:bg-zinc-300"
+                >
+                  Calzado 39-43
+                </button>
+                <button
+                  type="button"
+                  onClick={() => aplicarPresetTalles('unico')}
+                  className="text-[10px] px-1.5 py-0.5 rounded bg-zinc-200 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-300 hover:bg-zinc-300"
+                >
+                  Talle Único
+                </button>
+                <button
+                  type="button"
+                  onClick={agregarFilaVariante}
+                  className="text-xs text-militar-700 dark:text-militar-400 font-bold hover:underline pl-2"
+                >
+                  + Fila
+                </button>
+              </div>
             </div>
 
             <div className="space-y-2">
+              <div className="grid grid-cols-12 gap-2 text-[10px] font-mono text-zinc-500 uppercase px-1">
+                <span className="col-span-3">Talle</span>
+                <span className="col-span-4">Color</span>
+                <span className="col-span-2">Stock</span>
+                <span className="col-span-2">Mínimo</span>
+                <span className="col-span-1 text-center">Acción</span>
+              </div>
+
               {variantes.map((v, i) => (
-                <div key={i} className="flex items-center gap-2">
+                <div key={i} className="grid grid-cols-12 gap-2 items-center">
                   <input
                     type="text"
                     placeholder="Talle"
@@ -1341,7 +1609,7 @@ function ModalNuevoProducto({
                       next[i].talle = e.target.value;
                       setVariantes(next);
                     }}
-                    className="w-20 px-2.5 py-1.5 rounded bg-zinc-50 dark:bg-zinc-900 border border-zinc-300 dark:border-zinc-800 text-zinc-900 dark:text-white text-xs font-bold"
+                    className="col-span-3 px-2.5 py-1.5 rounded-lg bg-zinc-50 dark:bg-zinc-900 border border-zinc-300 dark:border-zinc-800 text-zinc-900 dark:text-white text-xs font-bold"
                   />
                   <input
                     type="text"
@@ -1352,48 +1620,53 @@ function ModalNuevoProducto({
                       next[i].color = e.target.value;
                       setVariantes(next);
                     }}
-                    className="w-28 px-2.5 py-1.5 rounded bg-zinc-50 dark:bg-zinc-900 border border-zinc-300 dark:border-zinc-800 text-zinc-900 dark:text-white text-xs"
+                    className="col-span-4 px-2.5 py-1.5 rounded-lg bg-zinc-50 dark:bg-zinc-900 border border-zinc-300 dark:border-zinc-800 text-zinc-900 dark:text-white text-xs"
                   />
                   <input
                     type="number"
-                    placeholder="Stock"
+                    placeholder="0"
                     value={v.stock}
                     onChange={(e) => {
                       const next = [...variantes];
                       next[i].stock = parseInt(e.target.value) || 0;
                       setVariantes(next);
                     }}
-                    className="w-20 px-2.5 py-1.5 rounded bg-zinc-50 dark:bg-zinc-900 border border-zinc-300 dark:border-zinc-800 text-zinc-900 dark:text-white text-xs font-mono"
+                    className="col-span-2 px-2.5 py-1.5 rounded-lg bg-zinc-50 dark:bg-zinc-900 border border-zinc-300 dark:border-zinc-800 text-zinc-900 dark:text-white text-xs font-mono"
                   />
                   <input
                     type="number"
-                    placeholder="Mínimo"
-                    title="Stock mínimo para alerta"
+                    placeholder="5"
                     value={v.stock_minimo}
                     onChange={(e) => {
                       const next = [...variantes];
                       next[i].stock_minimo = parseInt(e.target.value) || 0;
                       setVariantes(next);
                     }}
-                    className="w-20 px-2.5 py-1.5 rounded bg-zinc-50 dark:bg-zinc-900 border border-zinc-300 dark:border-zinc-800 text-zinc-900 dark:text-white text-xs font-mono"
+                    className="col-span-2 px-2.5 py-1.5 rounded-lg bg-zinc-50 dark:bg-zinc-900 border border-zinc-300 dark:border-zinc-800 text-zinc-900 dark:text-white text-xs font-mono"
                   />
-                  {variantes.length > 1 && (
-                    <button
-                      type="button"
-                      onClick={() => quitarFilaVariante(i)}
-                      className="p-1 text-zinc-400 hover:text-red-500"
-                    >
-                      ✕
-                    </button>
-                  )}
+                  <div className="col-span-1 text-center">
+                    {variantes.length > 1 ? (
+                      <button
+                        type="button"
+                        onClick={() => quitarFilaVariante(i)}
+                        className="p-1 text-zinc-400 hover:text-red-500 rounded"
+                        title="Eliminar fila"
+                      >
+                        ✕
+                      </button>
+                    ) : (
+                      <span className="text-zinc-600">-</span>
+                    )}
+                  </div>
                 </div>
               ))}
             </div>
           </div>
 
+          {/* Botones de acción */}
           <div className="pt-4 border-t border-zinc-200 dark:border-zinc-800 flex justify-end gap-3">
             <button type="button" onClick={onClose} className="btn-secondary text-xs">Cancelar</button>
-            <button type="submit" disabled={guardando} className="btn-primary text-xs">
+            <button type="submit" disabled={guardando} className="btn-primary text-xs px-5 py-2.5">
               {guardando ? 'Creando...' : 'Crear Producto'}
             </button>
           </div>

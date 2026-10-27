@@ -18,6 +18,8 @@ export interface Producto {
   nombre: string;
   descripcion: string | null;
   precio: number;
+  costo?: number | null;
+  porcentaje_ganancia?: number | null;
   exige_credencial: boolean;
   categoria_id: string | null;
   imagen_url: string | null;
@@ -44,11 +46,26 @@ export interface Variante {
   updated_at: string;
 }
 
+/* ─── Movimiento de Caja (Módulo Financiero) ─── */
+export interface MovimientoCaja {
+  id: string;
+  tipo: 'ingreso' | 'egreso';
+  monto: number;
+  concepto: string;
+  categoria_caja: string;
+  metodo_pago: 'efectivo' | 'transferencia' | 'tarjeta' | 'otro';
+  producto_id?: string | null;
+  cantidad?: number | null;
+  created_at: string;
+}
+
 /* ─── Tipos auxiliares para formularios ─── */
 export interface ProductoFormData {
   nombre: string;
   descripcion: string;
   precio: number;
+  costo?: number;
+  porcentaje_ganancia?: number;
   exige_credencial: boolean;
   categoria_id: string;
   imagen_url: string;
@@ -88,6 +105,12 @@ export interface Database {
         Row: Variante;
         Insert: Partial<Variante>;
         Update: Partial<Variante>;
+        Relationships: [];
+      };
+      movimientos_caja: {
+        Row: MovimientoCaja;
+        Insert: Partial<MovimientoCaja>;
+        Update: Partial<MovimientoCaja>;
         Relationships: [];
       };
     };

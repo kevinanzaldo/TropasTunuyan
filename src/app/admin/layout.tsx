@@ -86,19 +86,40 @@ export default function AdminLayout({
         </div>
 
         {/* Navegación */}
-        <nav className="flex-1 p-3 space-y-1">
+        <nav className="flex-1 p-3 space-y-1.5">
           <Link
             href="/admin/inventario"
-            className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-semibold text-militar-700 dark:text-militar-400 bg-militar-50 dark:bg-militar-600/10 border border-militar-200 dark:border-militar-600/20 shadow-sm"
+            className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-semibold transition-all ${
+              pathname.startsWith('/admin/inventario')
+                ? 'text-militar-700 dark:text-militar-400 bg-militar-50 dark:bg-militar-600/10 border border-militar-200 dark:border-militar-600/20 shadow-sm'
+                : 'text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white hover:bg-zinc-100 dark:hover:bg-zinc-900'
+            }`}
           >
             <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z" />
             </svg>
             Inventario & Stock
           </Link>
+
+          <Link
+            href="/admin/finanzas"
+            className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-semibold transition-all ${
+              pathname.startsWith('/admin/finanzas')
+                ? 'text-militar-700 dark:text-militar-400 bg-militar-50 dark:bg-militar-600/10 border border-militar-200 dark:border-militar-600/20 shadow-sm'
+                : 'text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white hover:bg-zinc-100 dark:hover:bg-zinc-900'
+            }`}
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <line x1="12" x2="12" y1="2" y2="22" />
+              <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
+            </svg>
+            Caja & Finanzas
+          </Link>
+
           <Link
             href="/catalogo"
             className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-zinc-600 dark:text-zinc-500 hover:text-zinc-900 dark:hover:text-white hover:bg-zinc-100 dark:hover:bg-zinc-900 transition-colors"
+            target="_blank"
           >
             <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z" />
@@ -157,14 +178,28 @@ export default function AdminLayout({
               Tropas Tunuyán
             </span>
           </Link>
-          <div className="flex items-center gap-2">
-            <ThemeToggle />
+          <div className="flex items-center gap-1.5 sm:gap-2">
             <Link
-              href="/catalogo"
-              className="text-xs font-medium text-zinc-600 dark:text-zinc-400 px-2.5 py-1.5 rounded-lg border border-zinc-300 dark:border-zinc-800"
+              href="/admin/inventario"
+              className={`text-xs font-semibold px-2 py-1 rounded-md transition-colors ${
+                pathname.startsWith('/admin/inventario')
+                  ? 'bg-militar-600 text-white'
+                  : 'text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white'
+              }`}
             >
-              Catálogo
+              Stock
             </Link>
+            <Link
+              href="/admin/finanzas"
+              className={`text-xs font-semibold px-2 py-1 rounded-md transition-colors ${
+                pathname.startsWith('/admin/finanzas')
+                  ? 'bg-militar-600 text-white'
+                  : 'text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white'
+              }`}
+            >
+              Caja
+            </Link>
+            <ThemeToggle />
             <button
               onClick={handleLogout}
               className="p-1.5 rounded-lg text-red-500 hover:bg-red-50 dark:hover:bg-red-950/40"
