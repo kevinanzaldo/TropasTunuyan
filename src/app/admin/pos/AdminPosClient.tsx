@@ -967,7 +967,7 @@ export default function AdminPosClient({ initialProductos, categorias }: Props) 
           setTurnoActivo(turno);
           setModalAperturaAbierto(false);
           mostrarToast(
-            `Turno #${turno.numero_turno} abierto correctamente. Fondo inicial: ${formatPrecio(turno.monto_apertura)}`
+            `Turno abierto correctamente para ${turno.cajero_nombre}. Fondo inicial: ${formatPrecio(turno.monto_apertura)}`
           );
         }}
       />
@@ -981,13 +981,14 @@ export default function AdminPosClient({ initialProductos, categorias }: Props) 
           onTurnoCerrado={(turnoFinal) => {
             setTurnoActivo(null);
             setModalArqueoAbierto(false);
+            const diff = turnoFinal.diferencia ?? 0;
             const diffMsg =
-              turnoFinal.diferencia === 0
+              diff === 0
                 ? 'Caja exacta ($0 de desviación)'
-                : turnoFinal.diferencia > 0
-                ? `Sobrante: +${formatPrecio(turnoFinal.diferencia)}`
-                : `Faltante: -${formatPrecio(Math.abs(turnoFinal.diferencia))}`;
-            mostrarToast(`Turno #${turnoFinal.numero_turno} cerrado. ${diffMsg}`);
+                : diff > 0
+                ? `Sobrante: +${formatPrecio(diff)}`
+                : `Faltante: -${formatPrecio(Math.abs(diff))}`;
+            mostrarToast(`Turno de ${turnoFinal.cajero_nombre} cerrado. ${diffMsg}`);
           }}
         />
       )}

@@ -1,5 +1,5 @@
 import { supabase } from '@/lib/supabase';
-import type { ProductoConVariantes, MovimientoCaja } from '@/types/database';
+import type { ProductoConVariantes, MovimientoCaja, Categoria } from '@/types/database';
 import AdminFinanzasClient from './AdminFinanzasClient';
 
 export const revalidate = 0; // Datos siempre frescos para el control financiero
