@@ -19,6 +19,7 @@ import {
   obtenerTurnoActivo,
   EVENTO_TURNO_ACTUALIZADO,
 } from '@/lib/finanzas';
+import { obtenerEmpleados, EVENTO_EMPLEADOS_ACTUALIZADOS, Empleado } from '@/lib/empleados';
 import ModalVerificacionCredencial from '@/components/admin/ModalVerificacionCredencial';
 import ModalCobroTactico from '@/components/admin/ModalCobroTactico';
 import ModalTicketVenta from '@/components/admin/ModalTicketVenta';
@@ -38,27 +39,39 @@ const DEFAULT_IMAGES: Record<string, string> = {
   'Funda Pistolera Nivel II': '/productos/funda.png',
 };
 
-const VENDEDORES = [
-  'Kevin (Líder / Mostrador)',
-  'Juan Manuel (Turno Mañana)',
-  'Máximo (Turno Tarde)',
-  'Francisco (Turno Tarde)',
-  'Pablo (Fin de Semana)',
-];
-
 export default function AdminPosClient({ initialProductos, categorias }: Props) {
   // Catálogo y estado de productos (con stock dinámico)
   const [productos, setProductos] = useState<ProductoConVariantes[]>(initialProductos);
   const [categoriaSeleccionada, setCategoriaSeleccionada] = useState<string | null>(null);
   const [busqueda, setBusqueda] = useState('');
 
+  // Lista dinámica de empleados / cajeros
+  const [empleados, setEmpleados] = useState<Empleado[]>(() => obtenerEmpleados());
+
+  const listaVendedores = useMemo(() => {
+    const activos = empleados.filter((e) => e.activo);
+    if (activos.length === 0) return ['Mostrador General'];
+    return activos.map((e) => `${e.nombre} (${e.rol})`);
+  }, [empleados]);
+
   // Vendedor activo
   const [vendedorActivo, setVendedorActivo] = useState<string>(() => {
     if (typeof window !== 'undefined') {
-      return localStorage.getItem('tropas_pos_cajero') || VENDEDORES[0];
+      const guardado = localStorage.getItem('tropas_pos_cajero');
+      if (guardado) return guardado;
     }
-    return VENDEDORES[0];
+    const iniciales = obtenerEmpleados().filter((e) => e.activo);
+    return iniciales.length > 0 ? `${iniciales[0].nombre} (${iniciales[0].rol})` : 'Mostrador General';
   });
+
+  useEffect(() => {
+    const handler = () => {
+      const nuevos = obtenerEmpleados();
+      setEmpleados(nuevos);
+    };
+    window.addEventListener(EVENTO_EMPLEADOS_ACTUALIZADOS, handler);
+    return () => window.removeEventListener(EVENTO_EMPLEADOS_ACTUALIZADOS, handler);
+  }, []);
 
   // Carrito de ventas
   const [carrito, setCarrito] = useState<VentaItemCarrito[]>([]);
@@ -419,12 +432,24 @@ export default function AdminPosClient({ initialProductos, categorias }: Props) 
               onChange={(e) => handleCambiarVendedor(e.target.value)}
               className="px-3 py-1.5 rounded-xl border border-zinc-300 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800 text-xs font-semibold text-zinc-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-militar-500"
             >
-              {VENDEDORES.map((v) => (
+              {listaVendedores.map((v) => (
                 <option key={v} value={v}>
                   {v}
                 </option>
               ))}
             </select>
+            <Link
+              href="/admin/turnos"
+              className="p-1.5 text-zinc-400 hover:text-militar-600 dark:hover:text-militar-400 rounded-lg hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors"
+              title="Gestionar Turnos y Empleados"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
+                <circle cx="9" cy="7" r="4" />
+                <line x1="19" y1="8" x2="19" y2="14" />
+                <line x1="22" y1="11" x2="16" y2="11" />
+              </svg>
+            </Link>
           </div>
 
           {/* Control de Turno y Arqueo Ciego (HU 3.3) */}

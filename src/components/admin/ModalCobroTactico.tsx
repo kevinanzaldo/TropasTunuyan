@@ -120,36 +120,52 @@ export default function ModalCobroTactico({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/80 backdrop-blur-md animate-fade-in">
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/80 backdrop-blur-md overflow-y-auto animate-fade-in"
+      onClick={(e) => {
+        if (e.target === e.currentTarget) onClose();
+      }}
+    >
       <div
-        className="w-full max-w-xl bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-2xl shadow-2xl overflow-hidden animate-scale-in"
+        className="w-full max-w-xl max-h-[90vh] flex flex-col bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-2xl shadow-2xl overflow-hidden animate-scale-in"
         role="dialog"
         aria-modal="true"
+        onClick={(e) => e.stopPropagation()}
       >
         {/* Cabecera del Cobro */}
-        <div className="bg-zinc-900 dark:bg-black p-4 sm:p-5 border-b border-zinc-800 flex items-center justify-between">
+        <div className="flex-shrink-0 bg-zinc-900 dark:bg-black p-4 sm:p-5 border-b border-zinc-800 flex items-center justify-between">
           <div>
             <div className="flex items-center gap-2 mb-1">
               <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
               <span className="text-[10px] font-mono font-bold uppercase tracking-widest text-emerald-400">
-                Punto de Cobro Mostrador (HU 3.4)
+                Punto de Cobro Mostrador
               </span>
             </div>
             <h2 className="text-xl sm:text-2xl font-display font-black text-white">
               Cobrar Venta
             </h2>
           </div>
-          <div className="text-right">
-            <span className="text-xs text-zinc-400 block font-mono">Total a Cobrar</span>
-            <span className="text-2xl sm:text-3xl font-display font-black text-emerald-400">
-              {formatPrecio(total)}
-            </span>
+          <div className="flex items-center gap-4">
+            <div className="text-right">
+              <span className="text-xs text-zinc-400 block font-mono">Total a Cobrar</span>
+              <span className="text-2xl sm:text-3xl font-display font-black text-emerald-400">
+                {formatPrecio(total)}
+              </span>
+            </div>
+            <button
+              type="button"
+              onClick={onClose}
+              className="p-1.5 text-zinc-400 hover:text-white rounded-lg hover:bg-zinc-800 transition-colors text-base font-bold leading-none"
+              title="Cancelar cobro (Esc)"
+            >
+              ✕
+            </button>
           </div>
         </div>
 
         {/* Notificación de Credencial Acreditada si corresponde */}
         {credencialVerificada && fuerzaInstitucion && (
-          <div className="bg-emerald-950/40 border-b border-emerald-800/40 px-4 py-2 flex items-center gap-2 text-xs text-emerald-300 font-mono">
+          <div className="flex-shrink-0 bg-emerald-950/40 border-b border-emerald-800/40 px-4 py-2 flex items-center gap-2 text-xs text-emerald-300 font-mono">
             <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4 text-emerald-400 flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
               <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
               <path d="m9 12 2 2 4-4" />
@@ -158,7 +174,7 @@ export default function ModalCobroTactico({
           </div>
         )}
 
-        <form onSubmit={handleConfirmar} className="p-4 sm:p-6 space-y-5">
+        <form onSubmit={handleConfirmar} className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-5">
           {/* Selector de Medios de Pago */}
           <div>
             <label className="text-xs font-bold uppercase tracking-wider text-zinc-500 dark:text-zinc-400 block mb-2">

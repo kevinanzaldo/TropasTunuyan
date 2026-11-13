@@ -80,23 +80,41 @@ export default function ModalTicketVenta({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/80 backdrop-blur-md animate-fade-in print:p-0 print:bg-white print:fixed print:inset-0">
-      <div className="w-full max-w-md bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-2xl shadow-2xl overflow-hidden print:border-none print:shadow-none print:w-full print:max-w-none">
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/80 backdrop-blur-md overflow-y-auto animate-fade-in print:p-0 print:bg-white print:fixed print:inset-0"
+      onClick={(e) => {
+        if (e.target === e.currentTarget) onNuevaVenta();
+      }}
+    >
+      <div
+        className="w-full max-w-md max-h-[90vh] flex flex-col bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-2xl shadow-2xl overflow-hidden print:border-none print:shadow-none print:w-full print:max-w-none print:max-h-none"
+        onClick={(e) => e.stopPropagation()}
+      >
         {/* Cabecera modal no imprimible */}
-        <div className="p-4 bg-emerald-600 text-white flex items-center justify-between print:hidden">
+        <div className="flex-shrink-0 p-4 bg-emerald-600 text-white flex items-center justify-between print:hidden">
           <div className="flex items-center gap-2">
             <span className="p-1 rounded bg-emerald-700">✓</span>
             <span className="text-sm font-bold">Venta Registrada Exitosamente</span>
           </div>
-          <span className="text-xs font-mono font-bold bg-emerald-800 px-2 py-0.5 rounded">
-            {venta.numero_ticket}
-          </span>
+          <div className="flex items-center gap-2">
+            <span className="text-xs font-mono font-bold bg-emerald-800 px-2 py-0.5 rounded">
+              {venta.numero_ticket}
+            </span>
+            <button
+              type="button"
+              onClick={onNuevaVenta}
+              className="p-1 text-white/80 hover:text-white rounded hover:bg-emerald-700 transition-colors text-base font-bold leading-none"
+              title="Cerrar ticket"
+            >
+              ✕
+            </button>
+          </div>
         </div>
 
         {/* ─── TICKET TÉRMICO FORMATEADO (58/80mm) ─── */}
         <div
           ref={ticketRef}
-          className="p-6 bg-white text-zinc-900 font-mono text-xs leading-relaxed max-h-[70vh] overflow-y-auto print:max-h-none print:p-2 print:text-black"
+          className="flex-1 p-6 bg-white text-zinc-900 font-mono text-xs leading-relaxed overflow-y-auto print:max-h-none print:p-2 print:text-black"
         >
           {/* Membrete Oficial */}
           <div className="text-center pb-3 border-b border-dashed border-zinc-400">

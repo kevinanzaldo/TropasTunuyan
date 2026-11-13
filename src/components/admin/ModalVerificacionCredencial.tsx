@@ -64,43 +64,59 @@ export default function ModalVerificacionCredencial({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/75 backdrop-blur-sm animate-fade-in">
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/80 backdrop-blur-md overflow-y-auto animate-fade-in"
+      onClick={(e) => {
+        if (e.target === e.currentTarget) onClose();
+      }}
+    >
       <div
-        className="w-full max-w-lg bg-white dark:bg-zinc-900 border-2 border-red-500/60 dark:border-red-600/70 rounded-2xl shadow-2xl overflow-hidden animate-scale-in"
+        className="relative w-full max-w-lg max-h-[90vh] flex flex-col bg-white dark:bg-zinc-900 border-2 border-red-500/60 dark:border-red-600/70 rounded-2xl shadow-2xl overflow-hidden animate-scale-in"
         role="dialog"
         aria-modal="true"
+        onClick={(e) => e.stopPropagation()}
       >
         {/* Cabecera de Alerta Normativa */}
-        <div className="bg-red-600 text-white p-4 sm:p-5 flex items-start gap-3.5">
-          <div className="p-2 bg-red-700/80 rounded-xl flex-shrink-0">
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              className="w-6 h-6 text-white"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2.5"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            >
-              <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
-              <path d="m9 12 2 2 4-4" />
-            </svg>
+        <div className="flex-shrink-0 bg-red-600 text-white p-4 sm:p-5 flex items-start justify-between gap-3.5">
+          <div className="flex items-start gap-3.5">
+            <div className="p-2 bg-red-700/80 rounded-xl flex-shrink-0">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                className="w-6 h-6 text-white"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2.5"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+                <path d="m9 12 2 2 4-4" />
+              </svg>
+            </div>
+            <div>
+              <span className="text-[11px] font-mono font-bold tracking-widest uppercase bg-red-800/80 px-2 py-0.5 rounded text-red-100">
+                Protocolo de Control Obligatorio
+              </span>
+              <h2 className="text-lg sm:text-xl font-display font-extrabold text-white mt-1 leading-snug">
+                Validación de Credencial Habilitante
+              </h2>
+              <p className="text-xs text-red-100 mt-1">
+                Venta restringida según normativas de comercialización de indumentaria y atributos oficiales.
+              </p>
+            </div>
           </div>
-          <div>
-            <span className="text-[11px] font-mono font-bold tracking-widest uppercase bg-red-800/80 px-2 py-0.5 rounded text-red-100">
-              Protocolo de Control Obligatorio (HU 3.2)
-            </span>
-            <h2 className="text-lg sm:text-xl font-display font-extrabold text-white mt-1 leading-snug">
-              Validación de Credencial Habilitante
-            </h2>
-            <p className="text-xs text-red-100 mt-1">
-              Venta restringida según normativas de comercialización de indumentaria y atributos oficiales.
-            </p>
-          </div>
+          <button
+            type="button"
+            onClick={onClose}
+            className="p-1 text-white/80 hover:text-white rounded hover:bg-red-700 transition-colors text-base font-bold leading-none"
+            title="Cancelar"
+          >
+            ✕
+          </button>
         </div>
 
-        <form onSubmit={handleSubmit} className="p-4 sm:p-6 space-y-5">
+        <form onSubmit={handleSubmit} className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-5">
           {/* Lista de Artículos que Exigen Credencial en esta Venta */}
           <div>
             <label className="text-xs font-bold uppercase tracking-wider text-zinc-500 dark:text-zinc-400 block mb-2">

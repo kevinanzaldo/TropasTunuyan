@@ -78,9 +78,9 @@ export default function AdminLayout({
   return (
     <div className="min-h-screen flex">
       {/* Sidebar */}
-      <aside className="hidden lg:flex flex-col w-64 bg-white dark:bg-zinc-950 border-r border-zinc-200 dark:border-zinc-900 transition-colors">
+      <aside className="hidden lg:flex flex-col w-64 bg-white dark:bg-zinc-950 border-r border-zinc-200 dark:border-zinc-900 transition-colors sticky top-0 h-screen overflow-hidden flex-shrink-0">
         {/* Logo */}
-        <div className="p-5 border-b border-zinc-200 dark:border-zinc-900">
+        <div className="flex-shrink-0 p-5 border-b border-zinc-200 dark:border-zinc-900">
           <Link href="/" className="flex items-center gap-3">
             <div className="relative w-10 h-10 rounded-lg overflow-hidden border border-zinc-300 dark:border-militar-600/30 bg-black flex-shrink-0 shadow-md">
               <Image
@@ -102,7 +102,7 @@ export default function AdminLayout({
         </div>
 
         {/* Navegación según Rol (HU 1.1) */}
-        <nav className="flex-1 p-3 space-y-1.5">
+        <nav className="flex-1 p-3 space-y-1.5 overflow-y-auto">
           <Link
             href="/admin/pos"
             className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-semibold transition-all ${
@@ -150,10 +150,27 @@ export default function AdminLayout({
                 </svg>
                 <span>Caja & Finanzas</span>
               </Link>
+
+              <Link
+                href="/admin/turnos"
+                className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-semibold transition-all ${
+                  pathname.startsWith('/admin/turnos')
+                    ? 'text-militar-700 dark:text-militar-400 bg-militar-50 dark:bg-militar-600/10 border border-militar-200 dark:border-militar-600/20 shadow-sm'
+                    : 'text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white hover:bg-zinc-100 dark:hover:bg-zinc-900'
+                }`}
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
+                  <circle cx="9" cy="7" r="4" />
+                  <path d="M22 21v-2a4 4 0 0 0-3-3.87" />
+                  <path d="M16 3.13a4 4 0 0 1 0 7.75" />
+                </svg>
+                <span>Turnos & Personal</span>
+              </Link>
             </>
           ) : (
             <div className="pt-2 px-3 text-[11px] font-mono text-zinc-400 italic">
-              🔒 Inventario y Finanzas restringidos al administrador
+              🔒 Gestión de inventario, finanzas y personal restringidos al administrador
             </div>
           )}
 
@@ -171,8 +188,8 @@ export default function AdminLayout({
           </Link>
         </nav>
 
-        {/* Footer sidebar con Usuario según Rol, ThemeToggle y Botón de Cerrar Sesión */}
-        <div className="p-4 border-t border-zinc-200 dark:border-zinc-900 space-y-3">
+        {/* Footer sidebar con Usuario según Rol, ThemeToggle y Botón de Cerrar Sesión SIEMPRE VISIBLE */}
+        <div className="flex-shrink-0 p-4 border-t border-zinc-200 dark:border-zinc-900 space-y-3 bg-white dark:bg-zinc-950">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
               <div
@@ -261,6 +278,16 @@ export default function AdminLayout({
                   }`}
                 >
                   Caja
+                </Link>
+                <Link
+                  href="/admin/turnos"
+                  className={`text-xs font-semibold px-2 py-1 rounded-md transition-colors ${
+                    pathname.startsWith('/admin/turnos')
+                      ? 'bg-militar-600 text-white'
+                      : 'text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white'
+                  }`}
+                >
+                  Turnos
                 </Link>
               </>
             )}
