@@ -15,11 +15,12 @@ export default function AdminLoginPage() {
   const [cargando, setCargando] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
 
-  // Si ya tiene sesión activa, redirigir directo al inventario
+  // Si ya tiene sesión activa, redirigir según su rol
   useEffect(() => {
     const sesion = localStorage.getItem('tropas_admin_auth');
     if (sesion === 'authenticated') {
-      router.replace('/admin/inventario');
+      const rol = localStorage.getItem('tropas_admin_role') || 'admin';
+      router.replace(rol === 'vendedor' ? '/admin/pos' : '/admin/inventario');
     }
   }, [router]);
 
@@ -38,19 +39,31 @@ export default function AdminLoginPage() {
       if (!supaError && supaData?.session) {
         localStorage.setItem('tropas_admin_auth', 'authenticated');
         localStorage.setItem('tropas_admin_email', email.trim());
+        localStorage.setItem('tropas_admin_role', 'admin');
         router.push('/admin/inventario');
         return;
       }
 
-      // 2. Credenciales maestras del sistema
-      // Permite ingreso inmediato sin requerir configuración manual previa de usuarios en Supabase Auth
-      const esAdminPorDefecto =
-        email.trim().toLowerCase() === 'tropastunuyan@gmail.com' && password === 'Tropas23660078@';
+      const emailLower = email.trim().toLowerCase();
 
-      if (esAdminPorDefecto) {
+      // 2. Rol Administrador General (HU 1.1)
+      if (emailLower === 'tropastunuyan@gmail.com' && password === 'Tropas23660078@') {
         localStorage.setItem('tropas_admin_auth', 'authenticated');
-        localStorage.setItem('tropas_admin_email', email.trim());
+        localStorage.setItem('tropas_admin_email', emailLower);
+        localStorage.setItem('tropas_admin_role', 'admin');
         router.push('/admin/inventario');
+        return;
+      }
+
+      // 3. Rol Vendedor / Cajero Mostrador (HU 1.1)
+      if (
+        (emailLower === 'vendedor@tropastunuyan.com' || emailLower === 'cajero@tropastunuyan.com') &&
+        (password === 'Tropas2024@' || password === 'Vendedor2024@')
+      ) {
+        localStorage.setItem('tropas_admin_auth', 'authenticated');
+        localStorage.setItem('tropas_admin_email', emailLower);
+        localStorage.setItem('tropas_admin_role', 'vendedor');
+        router.push('/admin/pos');
         return;
       }
 
@@ -62,9 +75,15 @@ export default function AdminLoginPage() {
     }
   };
 
-  const autocompletarDemo = () => {
+  const autocompletarAdmin = () => {
     setEmail('tropastunuyan@gmail.com');
     setPassword('Tropas23660078@');
+    setErrorMsg('');
+  };
+
+  const autocompletarVendedor = () => {
+    setEmail('vendedor@tropastunuyan.com');
+    setPassword('Vendedor2024@');
     setErrorMsg('');
   };
 
@@ -209,20 +228,30 @@ export default function AdminLoginPage() {
             </div>
           </form>
 
-          {/* Ayuda de acceso */}
-          <div className="mt-6 pt-5 border-t border-zinc-200 dark:border-zinc-800 text-center">
-            <button
-              type="button"
-              onClick={autocompletarDemo}
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold text-militar-700 dark:text-militar-400 bg-militar-50 dark:bg-militar-600/10 border border-militar-200 dark:border-militar-600/30 hover:bg-militar-100 dark:hover:bg-militar-600/20 transition-colors"
-            >
-              <svg xmlns="http://www.w3.org/2000/svg" className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4" />
-                <polyline points="10 17 15 12 10 7" />
-                <line x1="15" x2="3" y1="12" y2="12" />
-              </svg>
-              Autocompletar credenciales
-            </button>
+          {/* Ayuda de acceso y selección rápida de roles (HU 1.1) */}
+          <div className="mt-6 pt-5 border-t border-zinc-200 dark:border-zinc-800 text-center space-y-2">
+            <span className="text-[11px] font-mono uppercase text-zinc-400 block mb-2">
+              Credenciales de Demostración y Evaluación
+            </span>
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-2">
+              <button
+                type="button"
+                onClick={autocompletarAdmin}
+                className="w-full sm:w-auto inline-flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold text-militar-700 dark:text-militar-400 bg-militar-50 dark:bg-militar-600/10 border border-militar-200 dark:border-militar-600/30 hover:bg-militar-100 dark:hover:bg-militar-600/20 transition-colors"
+                title="Acceso como Administrador General (Inventario, Finanzas y POS)"
+              >
+                <span>🛡 Admin General</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={autocompletarVendedor}
+                className="w-full sm:w-auto inline-flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold text-emerald-700 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-300 dark:border-emerald-800/40 hover:bg-emerald-100 dark:hover:bg-emerald-900/30 transition-colors"
+                title="Acceso como Vendedor de Mostrador (Punto de Venta POS & Arqueo Ciego)"
+              >
+                <span>🛒 Vendedor / POS</span>
+              </button>
+            </div>
           </div>
         </div>
 

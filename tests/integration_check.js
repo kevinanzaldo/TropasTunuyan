@@ -34,6 +34,7 @@ async function runTestSuite() {
   await testRoute('Landing Page', '/');
   await testRoute('Catálogo Público', '/catalogo');
   await testRoute('Login Administrativo', '/admin/login');
+  await testRoute('Punto de Venta Mostrador (POS)', '/admin/pos');
   await testRoute('Panel de Inventario', '/admin/inventario');
   await testRoute('Módulo Financiero y Caja', '/admin/finanzas');
 

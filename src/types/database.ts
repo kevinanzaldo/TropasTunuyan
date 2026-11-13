@@ -59,6 +59,75 @@ export interface MovimientoCaja {
   created_at: string;
 }
 
+/* ─── Turno de Caja (Arqueo Ciego - HU 3.3) ─── */
+export interface TurnoCaja {
+  id: string;
+  cajero_nombre: string;
+  monto_apertura: number;
+  monto_cierre_declarado: number | null;
+  monto_cierre_esperado: number | null;
+  diferencia: number | null;
+  estado: 'abierto' | 'cerrado';
+  observaciones?: string | null;
+  fecha_apertura: string;
+  fecha_cierre?: string | null;
+  total_ventas_efectivo?: number;
+  total_ventas_digital?: number;
+  cantidad_ventas?: number;
+}
+
+/* ─── Métodos de Pago ─── */
+export type MetodoPagoTipo = 'efectivo' | 'transferencia_alias' | 'tarjeta_postnet' | 'combinado';
+
+/* ─── Venta en Mostrador (POS - HU 3.1 & 3.2) ─── */
+export interface Venta {
+  id: string;
+  numero_ticket: string;
+  cajero_nombre: string;
+  turno_id?: string | null;
+  total: number;
+  metodo_pago: MetodoPagoTipo;
+  monto_efectivo?: number;
+  monto_digital?: number;
+  nro_comprobante_digital?: string | null;
+  exigio_credencial: boolean;
+  fuerza_institucion?: string | null;
+  credencial_verificada?: boolean;
+  legajo_comprador?: string | null;
+  detalles?: VentaDetalle[];
+  created_at: string;
+}
+
+/* ─── Detalle de Venta ─── */
+export interface VentaDetalle {
+  id: string;
+  venta_id: string;
+  producto_id?: string | null;
+  variante_id?: string | null;
+  nombre_producto: string;
+  talle: string;
+  color: string;
+  precio_unitario: number;
+  cantidad: number;
+  subtotal: number;
+  created_at?: string;
+}
+
+/* ─── Ítem del Carrito en el Punto de Venta (POS) ─── */
+export interface VentaItemCarrito {
+  variante_id: string;
+  producto_id: string;
+  nombre: string;
+  talle: string;
+  color: string;
+  precio: number;
+  cantidad: number;
+  subtotal: number;
+  exige_credencial: boolean;
+  imagen_url: string | null;
+  stock_disponible: number;
+}
+
 /* ─── Tipos auxiliares para formularios ─── */
 export interface ProductoFormData {
   nombre: string;
@@ -111,6 +180,24 @@ export interface Database {
         Row: MovimientoCaja;
         Insert: Partial<MovimientoCaja>;
         Update: Partial<MovimientoCaja>;
+        Relationships: [];
+      };
+      turnos_caja: {
+        Row: TurnoCaja;
+        Insert: Partial<TurnoCaja>;
+        Update: Partial<TurnoCaja>;
+        Relationships: [];
+      };
+      ventas: {
+        Row: Venta;
+        Insert: Partial<Venta>;
+        Update: Partial<Venta>;
+        Relationships: [];
+      };
+      venta_detalles: {
+        Row: VentaDetalle;
+        Insert: Partial<VentaDetalle>;
+        Update: Partial<VentaDetalle>;
         Relationships: [];
       };
     };
