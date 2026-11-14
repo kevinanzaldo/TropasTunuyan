@@ -94,6 +94,8 @@ export interface Venta {
   fuerza_institucion?: string | null;
   credencial_verificada?: boolean;
   legajo_comprador?: string | null;
+  telefono_cliente?: string | null;
+  nombre_cliente?: string | null;
   detalles?: VentaDetalle[];
   created_at: string;
 }

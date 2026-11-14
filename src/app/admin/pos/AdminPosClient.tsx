@@ -300,12 +300,16 @@ export default function AdminPosClient({ initialProductos, categorias }: Props) 
     montoDigital,
     nroComprobanteDigital,
     vuelto,
+    telefonoCliente,
+    nombreCliente,
   }: {
     metodoPago: MetodoPagoTipo;
     montoEfectivo: number;
     montoDigital: number;
     nroComprobanteDigital: string;
     vuelto: number;
+    telefonoCliente?: string;
+    nombreCliente?: string;
   }) => {
     setModalCobroAbierto(false);
     setUltimoVuelto(vuelto);
@@ -325,6 +329,8 @@ export default function AdminPosClient({ initialProductos, categorias }: Props) 
       monto_efectivo: montoEfectivo,
       monto_digital: montoDigital,
       nro_comprobante_digital: nroComprobanteDigital || null,
+      telefono_cliente: telefonoCliente || null,
+      nombre_cliente: nombreCliente || null,
       exigio_credencial: exigeCredencialEnCarrito,
       fuerza_institucion: credencialInfo?.fuerzaInstitucion || null,
       credencial_verificada: credencialInfo?.verificada || false,

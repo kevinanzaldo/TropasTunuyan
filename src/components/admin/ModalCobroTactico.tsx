@@ -17,6 +17,8 @@ interface ModalCobroTacticoProps {
     montoDigital: number;
     nroComprobanteDigital: string;
     vuelto: number;
+    telefonoCliente?: string;
+    nombreCliente?: string;
   }) => void;
 }
 
@@ -46,6 +48,10 @@ export default function ModalCobroTactico({
   const [combinadoEfectivo, setCombinadoEfectivo] = useState<number>(Math.floor(total / 2));
   const [combinadoDigital, setCombinadoDigital] = useState<number>(total - Math.floor(total / 2));
 
+  // Estados de Datos del Cliente (Opcional - WhatsApp)
+  const [telefonoCliente, setTelefonoCliente] = useState('');
+  const [nombreCliente, setNombreCliente] = useState('');
+
   // Estados de validación
   const [errorValidacion, setErrorValidacion] = useState('');
 
@@ -63,6 +69,11 @@ export default function ModalCobroTactico({
     e.preventDefault();
     setErrorValidacion('');
 
+    const datosCliente = {
+      telefonoCliente: telefonoCliente.trim() || undefined,
+      nombreCliente: nombreCliente.trim() || undefined,
+    };
+
     if (metodo === 'efectivo') {
       if ((montoRecibido || 0) < total) {
         setErrorValidacion(`El monto recibido en efectivo es menor al total (${formatPrecio(total)}).`);
@@ -74,6 +85,7 @@ export default function ModalCobroTactico({
         montoDigital: 0,
         nroComprobanteDigital: '',
         vuelto: vueltoEfectivo,
+        ...datosCliente,
       });
     } else if (metodo === 'transferencia_alias') {
       if (!nroComprobante.trim()) {
@@ -86,6 +98,7 @@ export default function ModalCobroTactico({
         montoDigital: total,
         nroComprobanteDigital: nroComprobante.trim(),
         vuelto: 0,
+        ...datosCliente,
       });
     } else if (metodo === 'tarjeta_postnet') {
       if (!nroComprobante.trim()) {
@@ -98,6 +111,7 @@ export default function ModalCobroTactico({
         montoDigital: total,
         nroComprobanteDigital: nroComprobante.trim(),
         vuelto: 0,
+        ...datosCliente,
       });
     } else if (metodo === 'combinado') {
       const suma = (combinadoEfectivo || 0) + (combinadoDigital || 0);
@@ -115,6 +129,7 @@ export default function ModalCobroTactico({
         montoDigital: combinadoDigital,
         nroComprobanteDigital: nroComprobante.trim(),
         vuelto: 0,
+        ...datosCliente,
       });
     }
   };
@@ -446,6 +461,47 @@ export default function ModalCobroTactico({
               </div>
             </div>
           )}
+
+          {/* ─── DATOS DEL CLIENTE (OPCIONAL - WHATSAPP) ─── */}
+          <div className="p-4 rounded-xl bg-zinc-50 dark:bg-zinc-800/40 border border-zinc-200 dark:border-zinc-700/60 space-y-3">
+            <div className="flex items-center justify-between">
+              <span className="text-xs font-bold uppercase tracking-wider text-zinc-700 dark:text-zinc-300 flex items-center gap-1.5">
+                <span className="text-emerald-500">📱</span> WhatsApp / Datos del Cliente
+              </span>
+              <span className="text-[10px] text-zinc-500 dark:text-zinc-400 font-mono uppercase bg-zinc-200 dark:bg-zinc-700 px-2 py-0.5 rounded">
+                Opcional
+              </span>
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+              <div>
+                <label className="text-[11px] font-semibold text-zinc-600 dark:text-zinc-400 block mb-1">
+                  Número de WhatsApp
+                </label>
+                <input
+                  type="tel"
+                  value={telefonoCliente}
+                  onChange={(e) => setTelefonoCliente(e.target.value)}
+                  placeholder="Ej: 2622 123456"
+                  className="w-full px-3 py-2 rounded-lg border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-900 text-zinc-900 dark:text-white font-mono text-xs focus:ring-2 focus:ring-emerald-500 focus:outline-none"
+                />
+                <span className="text-[10px] text-zinc-400 block mt-0.5">
+                  El ticket PDF se enviará directo a su WhatsApp.
+                </span>
+              </div>
+              <div>
+                <label className="text-[11px] font-semibold text-zinc-600 dark:text-zinc-400 block mb-1">
+                  Nombre del Cliente
+                </label>
+                <input
+                  type="text"
+                  value={nombreCliente}
+                  onChange={(e) => setNombreCliente(e.target.value)}
+                  placeholder="Ej: Lucas Pérez (opcional)"
+                  className="w-full px-3 py-2 rounded-lg border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-900 text-zinc-900 dark:text-white text-xs focus:ring-2 focus:ring-emerald-500 focus:outline-none"
+                />
+              </div>
+            </div>
+          </div>
 
           {errorValidacion && (
             <p className="text-xs font-semibold text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-950/40 p-2.5 rounded-lg border border-red-200 dark:border-red-900/50">
