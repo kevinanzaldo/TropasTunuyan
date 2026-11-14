@@ -120,23 +120,23 @@ export default function ModalTicketVenta({
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/80 backdrop-blur-md overflow-y-auto animate-fade-in print:p-0 print:bg-white print:fixed print:inset-0"
+      className="fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-4 bg-black/80 backdrop-blur-md overflow-y-auto animate-fade-in print:p-0 print:bg-white print:fixed print:inset-0"
       onClick={(e) => {
         if (e.target === e.currentTarget) onNuevaVenta();
       }}
     >
       <div
-        className="w-full max-w-md max-h-[94vh] flex flex-col bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-2xl shadow-2xl overflow-hidden print:border-none print:shadow-none print:w-full print:max-w-none print:max-h-none"
+        className="w-full max-w-md max-h-[94vh] sm:max-h-[90vh] my-auto flex flex-col bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-2xl shadow-2xl overflow-hidden print:border-none print:shadow-none print:w-full print:max-w-none print:max-h-none"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Cabecera modal no imprimible */}
-        <div className="flex-shrink-0 p-4 bg-emerald-600 text-white flex items-center justify-between print:hidden">
-          <div className="flex items-center gap-2">
-            <span className="p-1 rounded bg-emerald-700 font-bold">✓</span>
-            <span className="text-sm font-bold">Venta Registrada Exitosamente</span>
+        <div className="flex-shrink-0 p-3.5 sm:p-4 bg-emerald-600 text-white flex items-center justify-between print:hidden">
+          <div className="flex items-center gap-2 min-w-0">
+            <span className="p-1 rounded bg-emerald-700 font-bold text-xs flex-shrink-0">✓</span>
+            <span className="text-xs sm:text-sm font-bold truncate">Venta Registrada Exitosamente</span>
           </div>
-          <div className="flex items-center gap-2">
-            <span className="text-xs font-mono font-bold bg-emerald-800 px-2 py-0.5 rounded">
+          <div className="flex items-center gap-2 flex-shrink-0">
+            <span className="text-[11px] sm:text-xs font-mono font-bold bg-emerald-800 px-2 py-0.5 rounded">
               {venta.numero_ticket}
             </span>
             <button
@@ -153,7 +153,7 @@ export default function ModalTicketVenta({
         {/* ─── TICKET TÉRMICO FORMATEADO (58/80mm) ─── */}
         <div
           ref={ticketRef}
-          className="flex-1 p-5 bg-white text-zinc-900 font-mono text-xs leading-relaxed overflow-y-auto print:max-h-none print:p-2 print:text-black"
+          className="flex-1 p-4 sm:p-5 bg-white text-zinc-900 font-mono text-xs leading-relaxed overflow-y-auto print:max-h-none print:p-2 print:text-black"
         >
           {/* Membrete Oficial */}
           <div className="text-center pb-3 border-b border-dashed border-zinc-400">
@@ -320,12 +320,12 @@ export default function ModalTicketVenta({
           </div>
 
           {/* Botones de Envío Rápido a WhatsApp */}
-          <div className="grid grid-cols-2 gap-2 pt-0.5">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-0.5">
             {/* Opción 1: WhatsApp Web Directo (recomendado en PC para ir directo al chat) */}
             <button
               type="button"
               onClick={handleAbrirWhatsAppWeb}
-              className="py-2 px-3 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold flex items-center justify-center gap-1.5 shadow-md shadow-emerald-900/20 transition-all"
+              className="py-2.5 px-3 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold flex items-center justify-center gap-1.5 shadow-md shadow-emerald-900/20 transition-all"
               title="Abre WhatsApp Web directamente con el chat de este número"
             >
               <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
@@ -338,7 +338,7 @@ export default function ModalTicketVenta({
             <button
               type="button"
               onClick={handleAbrirAppWhatsApp}
-              className="py-2 px-3 rounded-xl bg-zinc-900 hover:bg-black dark:bg-zinc-800 dark:hover:bg-zinc-700 text-white text-xs font-bold flex items-center justify-center gap-1.5 transition-colors border border-zinc-700"
+              className="py-2.5 px-3 rounded-xl bg-zinc-900 hover:bg-black dark:bg-zinc-800 dark:hover:bg-zinc-700 text-white text-xs font-bold flex items-center justify-center gap-1.5 transition-colors border border-zinc-700"
               title="Abre la aplicación de escritorio de WhatsApp"
             >
               <span>💻</span>
@@ -360,40 +360,42 @@ export default function ModalTicketVenta({
         </div>
 
         {/* ─── BOTONES GENERALES DE ACCIÓN ─── */}
-        <div className="p-3 bg-zinc-100 dark:bg-zinc-800 border-t border-zinc-200 dark:border-zinc-700 flex items-center justify-between gap-2 print:hidden">
-          {/* Imprimir Térmica */}
-          <button
-            type="button"
-            onClick={handleImprimir}
-            className="flex-1 py-2 px-2.5 rounded-xl border border-zinc-300 dark:border-zinc-600 hover:bg-white dark:hover:bg-zinc-700 text-zinc-800 dark:text-white text-xs font-bold flex items-center justify-center gap-1.5 transition-colors"
-          >
-            <svg xmlns="http://www.w3.org/2000/svg" className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <polyline points="6 9 6 2 18 2 18 9" />
-              <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2" />
-              <rect width="12" height="8" x="6" y="14" />
-            </svg>
-            Imprimir
-          </button>
+        <div className="p-3 bg-zinc-100 dark:bg-zinc-800 border-t border-zinc-200 dark:border-zinc-700 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-2 print:hidden">
+          <div className="grid grid-cols-2 gap-2 flex-1">
+            {/* Imprimir Térmica */}
+            <button
+              type="button"
+              onClick={handleImprimir}
+              className="py-2.5 px-2 rounded-xl border border-zinc-300 dark:border-zinc-600 hover:bg-white dark:hover:bg-zinc-700 text-zinc-800 dark:text-white text-xs font-bold flex items-center justify-center gap-1.5 transition-colors"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <polyline points="6 9 6 2 18 2 18 9" />
+                <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2" />
+                <rect width="12" height="8" x="6" y="14" />
+              </svg>
+              Imprimir
+            </button>
 
-          {/* Descargar PDF */}
-          <button
-            type="button"
-            onClick={handleDescargarPdf}
-            className="flex-1 py-2 px-2.5 rounded-xl border border-blue-300 dark:border-blue-800 bg-blue-50 dark:bg-blue-950/40 hover:bg-blue-100 text-blue-700 dark:text-blue-300 text-xs font-bold flex items-center justify-center gap-1.5 transition-colors"
-          >
-            <svg xmlns="http://www.w3.org/2000/svg" className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
-              <polyline points="7 10 12 15 17 10" />
-              <line x1="12" x2="12" y1="15" y2="3" />
-            </svg>
-            Bajar PDF
-          </button>
+            {/* Descargar PDF */}
+            <button
+              type="button"
+              onClick={handleDescargarPdf}
+              className="py-2.5 px-2 rounded-xl border border-blue-300 dark:border-blue-800 bg-blue-50 dark:bg-blue-950/40 hover:bg-blue-100 text-blue-700 dark:text-blue-300 text-xs font-bold flex items-center justify-center gap-1.5 transition-colors"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                <polyline points="7 10 12 15 17 10" />
+                <line x1="12" x2="12" y1="15" y2="3" />
+              </svg>
+              Bajar PDF
+            </button>
+          </div>
 
           {/* Nueva Venta */}
           <button
             type="button"
             onClick={onNuevaVenta}
-            className="flex-1 py-2 px-3 rounded-xl bg-militar-600 hover:bg-militar-700 text-white text-xs font-bold flex items-center justify-center gap-1.5 transition-colors shadow-sm"
+            className="w-full sm:w-auto py-2.5 px-5 rounded-xl bg-militar-600 hover:bg-militar-700 text-white text-xs font-bold flex items-center justify-center gap-1.5 transition-colors shadow-sm"
           >
             <svg xmlns="http://www.w3.org/2000/svg" className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
               <path d="M12 5v14" />

@@ -205,17 +205,17 @@ export default function ModalVerificacionCredencial({
           )}
 
           {/* Acciones */}
-          <div className="flex items-center justify-end gap-3 pt-2">
+          <div className="flex flex-col-reverse sm:flex-row items-stretch sm:items-center justify-end gap-2.5 pt-2">
             <button
               type="button"
               onClick={onClose}
-              className="px-4 py-2.5 rounded-xl border border-zinc-300 dark:border-zinc-700 text-xs font-semibold text-zinc-700 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors"
+              className="px-4 py-2.5 rounded-xl border border-zinc-300 dark:border-zinc-700 text-xs font-semibold text-zinc-700 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors text-center"
             >
               Cancelar
             </button>
             <button
               type="submit"
-              className="px-5 py-2.5 rounded-xl bg-red-600 hover:bg-red-700 text-white text-xs font-bold tracking-wide shadow-lg shadow-red-900/30 transition-all flex items-center gap-2"
+              className="px-5 py-2.5 rounded-xl bg-red-600 hover:bg-red-700 text-white text-xs font-bold tracking-wide shadow-lg shadow-red-900/30 transition-all flex items-center justify-center gap-2 text-center"
             >
               <svg
                 xmlns="http://www.w3.org/2000/svg"

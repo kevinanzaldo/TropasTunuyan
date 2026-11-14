@@ -98,6 +98,9 @@ export default function AdminPosClient({ initialProductos, categorias }: Props) 
   const [modalAperturaAbierto, setModalAperturaAbierto] = useState(false);
   const [modalArqueoAbierto, setModalArqueoAbierto] = useState(false);
 
+  // Vista móvil: 'catalogo' o 'carrito'
+  const [vistaMobile, setVistaMobile] = useState<'catalogo' | 'carrito'>('catalogo');
+
   // Notificaciones Toast
   const [toast, setToast] = useState<{ texto: string; tipo: 'exito' | 'error' | 'alerta' } | null>(null);
 
@@ -384,6 +387,7 @@ export default function AdminPosClient({ initialProductos, categorias }: Props) 
     setCredencialInfo(null);
     setUltimaVentaRegistrada(null);
     setUltimoVuelto(0);
+    setVistaMobile('catalogo');
     inputBusquedaRef.current?.focus();
   };
 
@@ -406,9 +410,9 @@ export default function AdminPosClient({ initialProductos, categorias }: Props) 
       )}
 
       {/* ─── BARRA DE ESTADO SUPERIOR DEL MOSTRADOR ─── */}
-      <div className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-2xl p-4 shadow-sm flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+      <div className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-2xl p-3.5 sm:p-4 shadow-sm flex flex-col md:flex-row items-start md:items-center justify-between gap-3 sm:gap-4">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-militar-600/10 dark:bg-militar-500/20 border border-militar-600/30 flex items-center justify-center text-militar-600 dark:text-militar-400">
+          <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-militar-600/10 dark:bg-militar-500/20 border border-militar-600/30 flex items-center justify-center text-militar-600 dark:text-militar-400 flex-shrink-0">
             <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <rect x="2" y="3" width="20" height="14" rx="2" />
               <line x1="8" y1="21" x2="16" y2="21" />
@@ -423,20 +427,20 @@ export default function AdminPosClient({ initialProductos, categorias }: Props) 
                 Punto de Venta Mostrador (POS)
               </span>
             </div>
-            <h1 className="text-xl sm:text-2xl font-display font-black text-zinc-900 dark:text-white">
+            <h1 className="text-lg sm:text-2xl font-display font-black text-zinc-900 dark:text-white leading-tight">
               Caja & Atención Rápida
             </h1>
           </div>
         </div>
 
-        {/* Selector de Cajero / Vendedor Activo */}
-        <div className="flex items-center gap-3 w-full md:w-auto justify-between md:justify-end">
-          <div className="flex items-center gap-2">
+        {/* Selector de Cajero / Vendedor Activo y Turno */}
+        <div className="flex items-center gap-2 sm:gap-3 w-full md:w-auto justify-between md:justify-end flex-wrap">
+          <div className="flex items-center gap-1.5 sm:gap-2">
             <span className="text-xs text-zinc-500 font-medium hidden sm:inline">Cajero:</span>
             <select
               value={vendedorActivo}
               onChange={(e) => handleCambiarVendedor(e.target.value)}
-              className="px-3 py-1.5 rounded-xl border border-zinc-300 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800 text-xs font-semibold text-zinc-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-militar-500"
+              className="px-2.5 py-1.5 rounded-xl border border-zinc-300 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800 text-xs font-semibold text-zinc-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-militar-500 max-w-[170px] sm:max-w-none truncate"
             >
               {listaVendedores.map((v) => (
                 <option key={v} value={v}>
@@ -459,10 +463,10 @@ export default function AdminPosClient({ initialProductos, categorias }: Props) 
           </div>
 
           {/* Control de Turno y Arqueo Ciego (HU 3.3) */}
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1.5 sm:gap-2">
             {turnoActivo ? (
               <div className="flex items-center gap-2">
-                <div className="hidden sm:flex flex-col text-right">
+                <div className="hidden md:flex flex-col text-right">
                   <span className="text-[11px] font-bold text-emerald-600 dark:text-emerald-400 flex items-center gap-1 justify-end">
                     <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
                     Turno Abierto
@@ -475,45 +479,79 @@ export default function AdminPosClient({ initialProductos, categorias }: Props) 
                 <button
                   type="button"
                   onClick={() => setModalArqueoAbierto(true)}
-                  className="px-3 py-1.5 rounded-xl bg-amber-600 hover:bg-amber-700 text-white text-xs font-bold flex items-center gap-1.5 shadow-sm transition-colors"
+                  className="px-2.5 sm:px-3 py-1.5 rounded-xl bg-amber-600 hover:bg-amber-700 text-white text-xs font-bold flex items-center gap-1.5 shadow-sm transition-colors"
                   title="Cerrar turno con conteo ciego de billetes"
                 >
                   <svg xmlns="http://www.w3.org/2000/svg" className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
                     <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
                     <path d="M7 11V7a5 5 0 0 1 10 0v4" />
                   </svg>
-                  Arqueo Ciego
+                  <span>Arqueo</span>
                 </button>
               </div>
             ) : (
               <button
                 type="button"
                 onClick={() => setModalAperturaAbierto(true)}
-                className="px-3 py-1.5 rounded-xl bg-militar-600 hover:bg-militar-700 text-white text-xs font-bold flex items-center gap-1.5 shadow-sm transition-colors"
+                className="px-2.5 sm:px-3 py-1.5 rounded-xl bg-militar-600 hover:bg-militar-700 text-white text-xs font-bold flex items-center gap-1.5 shadow-sm transition-colors"
               >
                 <span>+</span>
-                Abrir Turno
+                <span>Abrir Turno</span>
               </button>
             )}
 
             <Link
               href="/admin/finanzas"
-              className="btn-secondary text-xs px-3 py-1.5 rounded-lg flex items-center gap-1.5"
+              className="btn-secondary text-xs px-2.5 sm:px-3 py-1.5 rounded-lg flex items-center gap-1.5"
             >
               <svg xmlns="http://www.w3.org/2000/svg" className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                 <line x1="12" x2="12" y1="2" y2="22" />
                 <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
               </svg>
-              Caja
+              <span>Caja</span>
             </Link>
           </div>
         </div>
       </div>
 
+      {/* ─── SELECTOR DE VISTA MÓVIL (CATÁLOGO / CARRITO) ─── */}
+      <div className="lg:hidden flex rounded-2xl bg-zinc-200/80 dark:bg-zinc-800 p-1 shadow-inner">
+        <button
+          type="button"
+          onClick={() => setVistaMobile('catalogo')}
+          className={`flex-1 py-2.5 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-2 ${
+            vistaMobile === 'catalogo'
+              ? 'bg-white dark:bg-zinc-900 text-zinc-900 dark:text-white shadow-md'
+              : 'text-zinc-600 dark:text-zinc-400 hover:text-zinc-900'
+          }`}
+        >
+          <span>🏷️ Catálogo</span>
+          <span className="text-[10px] font-mono px-1.5 py-0.5 rounded-md bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-300">
+            {productosFiltrados.length}
+          </span>
+        </button>
+        <button
+          type="button"
+          onClick={() => setVistaMobile('carrito')}
+          className={`flex-1 py-2.5 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-2 relative ${
+            vistaMobile === 'carrito'
+              ? 'bg-white dark:bg-zinc-900 text-zinc-900 dark:text-white shadow-md'
+              : 'text-zinc-600 dark:text-zinc-400 hover:text-zinc-900'
+          }`}
+        >
+          <span>🛒 Carrito</span>
+          {totalArticulos > 0 && (
+            <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-emerald-600 text-white font-extrabold animate-pulse">
+              {totalArticulos}
+            </span>
+          )}
+        </button>
+      </div>
+
       {/* ─── CUERPO PRINCIPAL DEL POS: 2 COLUMNAS ─── */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 items-start">
         {/* COLUMNA IZQUIERDA (7 cols): Catálogo & Buscador */}
-        <div className="lg:col-span-7 space-y-4">
+        <div className={`lg:col-span-7 space-y-4 ${vistaMobile === 'carrito' ? 'hidden lg:block' : 'block pb-24 lg:pb-0'}`}>
           {/* Buscador Rápido con soporte Lector de Código de Barras */}
           <div className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-2xl p-4 shadow-sm space-y-3">
             <div className="relative">
@@ -668,7 +706,19 @@ export default function AdminPosClient({ initialProductos, categorias }: Props) 
         </div>
 
         {/* COLUMNA DERECHA (5 cols): Carrito de Venta y Checkout */}
-        <div className="lg:col-span-5 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-2xl p-4 sm:p-5 shadow-lg space-y-4 sticky top-4">
+        <div className={`lg:col-span-5 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-2xl p-4 sm:p-5 shadow-lg space-y-4 lg:sticky lg:top-4 ${vistaMobile === 'catalogo' ? 'hidden lg:block' : 'block'}`}>
+          {/* Botón para volver a catálogo en vista móvil */}
+          <button
+            type="button"
+            onClick={() => setVistaMobile('catalogo')}
+            className="lg:hidden w-full py-2.5 px-3 rounded-xl border border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800 text-xs font-bold text-zinc-700 dark:text-zinc-300 flex items-center justify-center gap-2 transition-colors mb-1 active:scale-98"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+              <path d="m15 18-6-6 6-6" />
+            </svg>
+            Seguir Agregando Productos
+          </button>
+
           <div className="flex items-center justify-between pb-3 border-b border-zinc-200 dark:border-zinc-800">
             <div className="flex items-center gap-2">
               <span className="text-base">🛒</span>
@@ -856,6 +906,37 @@ export default function AdminPosClient({ initialProductos, categorias }: Props) 
           </div>
         </div>
       </div>
+
+      {/* ─── BARRA FLOTANTE INFERIOR MÓVIL (CUANDO HAY ÍTEMS) ─── */}
+      {carrito.length > 0 && vistaMobile === 'catalogo' && (
+        <div className="lg:hidden fixed bottom-16 left-3 right-3 z-30 animate-slide-up">
+          <button
+            type="button"
+            onClick={() => setVistaMobile('carrito')}
+            className="w-full bg-zinc-900/95 dark:bg-zinc-900/95 text-white border border-zinc-700/80 p-3 rounded-2xl shadow-2xl flex items-center justify-between backdrop-blur-md active:scale-98 transition-all"
+          >
+            <div className="flex items-center gap-2.5">
+              <span className="w-8 h-8 rounded-xl bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 flex items-center justify-center font-bold text-xs">
+                {totalArticulos}
+              </span>
+              <div className="text-left">
+                <span className="text-xs font-bold block leading-tight">Ver Carrito</span>
+                <span className="text-[10px] text-zinc-400 font-mono">
+                  {carrito.length} artículo{carrito.length > 1 ? 's' : ''} cargado{carrito.length > 1 ? 's' : ''}
+                </span>
+              </div>
+            </div>
+            <div className="flex items-center gap-2.5">
+              <span className="font-display font-black text-emerald-400 text-sm sm:text-base">
+                {formatPrecio(totalVenta)}
+              </span>
+              <span className="px-3 py-1.5 rounded-xl bg-emerald-600 text-white text-xs font-bold flex items-center gap-1 shadow-sm">
+                Cobrar →
+              </span>
+            </div>
+          </button>
+        </div>
+      )}
 
       {/* ─── MODAL SELECTOR DE VARIANTE (TALLES/COLORES) ─── */}
       {productoParaVariante && (

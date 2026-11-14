@@ -241,7 +241,7 @@ export default function AdminInventarioClient({ initialProductos, categorias }: 
   };
 
   return (
-    <div className="p-6 sm:p-8 lg:p-10 max-w-7xl mx-auto space-y-8">
+    <div className="p-3.5 sm:p-6 lg:p-10 max-w-7xl mx-auto space-y-6 sm:space-y-8">
       {/* Toast Notification */}
       {mensajeToast && (
         <div

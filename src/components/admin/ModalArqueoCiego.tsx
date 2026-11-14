@@ -316,18 +316,18 @@ export default function ModalArqueoCiego({
               </div>
 
               {/* Botones (Fijos al pie) */}
-              <div className="flex-shrink-0 flex items-center justify-end gap-2.5 p-4 bg-zinc-50 dark:bg-zinc-900/90 border-t border-zinc-200 dark:border-zinc-800">
+              <div className="flex-shrink-0 flex flex-col-reverse sm:flex-row items-stretch sm:items-center justify-end gap-2.5 p-3.5 sm:p-4 bg-zinc-50 dark:bg-zinc-900/90 border-t border-zinc-200 dark:border-zinc-800">
                 <button
                   type="button"
                   onClick={onClose}
-                  className="px-4 py-2.5 rounded-xl border border-zinc-300 dark:border-zinc-700 text-xs font-semibold text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors"
+                  className="px-4 py-2.5 rounded-xl border border-zinc-300 dark:border-zinc-700 text-xs font-semibold text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors text-center"
                 >
                   Continuar Turno
                 </button>
                 <button
                   type="submit"
                   disabled={guardando}
-                  className="px-5 py-2.5 rounded-xl bg-amber-600 hover:bg-amber-700 text-white text-xs font-bold tracking-wide shadow-md flex items-center gap-2 transition-colors"
+                  className="px-5 py-2.5 rounded-xl bg-amber-600 hover:bg-amber-700 text-white text-xs font-bold tracking-wide shadow-md flex items-center justify-center gap-2 transition-colors text-center"
                 >
                   {guardando ? 'Auditando...' : '🔒 Confirmar Rendición y Auditar'}
                 </button>

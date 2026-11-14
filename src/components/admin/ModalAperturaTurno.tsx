@@ -178,18 +178,18 @@ export default function ModalAperturaTurno({
           </div>
 
           {/* Botones de Acción */}
-          <div className="flex items-center justify-end gap-2.5 pt-3 border-t border-zinc-200 dark:border-zinc-800">
+          <div className="flex flex-col-reverse sm:flex-row items-stretch sm:items-center justify-end gap-2.5 pt-3 border-t border-zinc-200 dark:border-zinc-800">
             <button
               type="button"
               onClick={onClose}
-              className="px-4 py-2.5 rounded-xl border border-zinc-300 dark:border-zinc-700 text-xs font-semibold text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800"
+              className="px-4 py-2.5 rounded-xl border border-zinc-300 dark:border-zinc-700 text-xs font-semibold text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800 text-center"
             >
               Cancelar
             </button>
             <button
               type="submit"
               disabled={abriendo}
-              className="px-5 py-2.5 rounded-xl bg-militar-600 hover:bg-militar-700 text-white text-xs font-bold tracking-wide shadow-md flex items-center gap-2"
+              className="px-5 py-2.5 rounded-xl bg-militar-600 hover:bg-militar-700 text-white text-xs font-bold tracking-wide shadow-md flex items-center justify-center gap-2 text-center"
             >
               {abriendo ? 'Abriendo Turno...' : 'Habilitar Turno'}
             </button>

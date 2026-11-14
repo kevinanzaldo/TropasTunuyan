@@ -136,19 +136,19 @@ export default function ModalCobroTactico({
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/80 backdrop-blur-md overflow-y-auto animate-fade-in"
+      className="fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-4 bg-black/80 backdrop-blur-md overflow-y-auto animate-fade-in"
       onClick={(e) => {
         if (e.target === e.currentTarget) onClose();
       }}
     >
       <div
-        className="w-full max-w-xl max-h-[90vh] flex flex-col bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-2xl shadow-2xl overflow-hidden animate-scale-in"
+        className="w-full max-w-xl max-h-[94vh] sm:max-h-[90vh] my-auto flex flex-col bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-2xl shadow-2xl overflow-hidden animate-scale-in"
         role="dialog"
         aria-modal="true"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Cabecera del Cobro */}
-        <div className="flex-shrink-0 bg-zinc-900 dark:bg-black p-4 sm:p-5 border-b border-zinc-800 flex items-center justify-between">
+        <div className="flex-shrink-0 bg-zinc-900 dark:bg-black p-3.5 sm:p-5 border-b border-zinc-800 flex items-center justify-between">
           <div>
             <div className="flex items-center gap-2 mb-1">
               <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
@@ -156,14 +156,14 @@ export default function ModalCobroTactico({
                 Punto de Cobro Mostrador
               </span>
             </div>
-            <h2 className="text-xl sm:text-2xl font-display font-black text-white">
+            <h2 className="text-lg sm:text-2xl font-display font-black text-white">
               Cobrar Venta
             </h2>
           </div>
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-3 sm:gap-4">
             <div className="text-right">
-              <span className="text-xs text-zinc-400 block font-mono">Total a Cobrar</span>
-              <span className="text-2xl sm:text-3xl font-display font-black text-emerald-400">
+              <span className="text-[11px] sm:text-xs text-zinc-400 block font-mono">Total a Cobrar</span>
+              <span className="text-xl sm:text-3xl font-display font-black text-emerald-400">
                 {formatPrecio(total)}
               </span>
             </div>
@@ -509,18 +509,18 @@ export default function ModalCobroTactico({
             </p>
           )}
 
-          {/* Botones de Acción */}
-          <div className="flex items-center justify-end gap-3 pt-2">
+          {/* Botones de Acción Responsive */}
+          <div className="flex flex-col-reverse sm:flex-row items-stretch sm:items-center justify-end gap-2.5 pt-2">
             <button
               type="button"
               onClick={onClose}
-              className="px-4 py-2.5 rounded-xl border border-zinc-300 dark:border-zinc-700 text-xs font-semibold text-zinc-700 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors"
+              className="px-4 py-2.5 rounded-xl border border-zinc-300 dark:border-zinc-700 text-xs font-semibold text-zinc-700 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors text-center"
             >
               Volver al Carrito
             </button>
             <button
               type="submit"
-              className="px-6 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold tracking-wide shadow-lg shadow-emerald-900/30 transition-all flex items-center gap-2"
+              className="px-6 py-3 sm:py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold tracking-wide shadow-lg shadow-emerald-900/30 transition-all flex items-center justify-center gap-2 text-center"
             >
               <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                 <polyline points="20 6 9 17 4 12" />

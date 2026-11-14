@@ -230,11 +230,11 @@ export default function AdminLayout({
       </aside>
 
       {/* Contenido principal */}
-      <div className="flex-1 flex flex-col">
+      <div className="flex-1 flex flex-col min-w-0">
         {/* Header mobile */}
-        <header className="lg:hidden sticky top-0 z-50 bg-white/90 dark:bg-zinc-950/80 backdrop-blur-xl border-b border-zinc-200 dark:border-zinc-800/60 px-4 h-14 flex items-center justify-between transition-colors">
-          <Link href="/" className="flex items-center gap-2">
-            <div className="relative w-8 h-8 rounded-md overflow-hidden border border-zinc-300 dark:border-militar-600/30 bg-black flex-shrink-0 shadow-sm">
+        <header className="lg:hidden sticky top-0 z-40 bg-white/95 dark:bg-zinc-950/90 backdrop-blur-xl border-b border-zinc-200 dark:border-zinc-800/80 px-3.5 h-14 flex items-center justify-between transition-colors shadow-xs">
+          <Link href="/" className="flex items-center gap-2 min-w-0">
+            <div className="relative w-8 h-8 rounded-lg overflow-hidden border border-zinc-300 dark:border-militar-600/30 bg-black flex-shrink-0 shadow-xs">
               <Image
                 src="/logo.png"
                 alt="Logo Tropas Tunuyán"
@@ -242,59 +242,32 @@ export default function AdminLayout({
                 className="object-cover"
               />
             </div>
-            <span className="font-display font-bold text-zinc-900 dark:text-white text-sm">
-              Tropas Tunuyán
-            </span>
+            <div className="min-w-0">
+              <span className="font-display font-black text-zinc-900 dark:text-white text-xs sm:text-sm truncate block leading-tight">
+                Tropas Tunuyán
+              </span>
+              <span className="text-[9px] font-mono uppercase tracking-wider text-militar-600 dark:text-militar-400 font-bold block">
+                {rolUsuario === 'admin' ? '🛡️ Admin' : '👤 Cajero'}
+              </span>
+            </div>
           </Link>
-          <div className="flex items-center gap-1.5 sm:gap-2">
+          <div className="flex items-center gap-1.5 sm:gap-2 flex-shrink-0">
             <Link
-              href="/admin/pos"
-              className={`text-xs font-semibold px-2 py-1 rounded-md transition-colors ${
-                pathname.startsWith('/admin/pos')
-                  ? 'bg-militar-600 text-white'
-                  : 'text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white'
-              }`}
+              href="/catalogo"
+              target="_blank"
+              className="p-1.5 text-zinc-500 hover:text-zinc-900 dark:hover:text-white rounded-lg hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors"
+              title="Ver Catálogo Público"
             >
-              POS
+              <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z" />
+                <line x1="3" x2="21" y1="6" y2="6" />
+                <path d="M16 10a4 4 0 0 1-8 0" />
+              </svg>
             </Link>
-            {rolUsuario === 'admin' && (
-              <>
-                <Link
-                  href="/admin/inventario"
-                  className={`text-xs font-semibold px-2 py-1 rounded-md transition-colors ${
-                    pathname.startsWith('/admin/inventario')
-                      ? 'bg-militar-600 text-white'
-                      : 'text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white'
-                  }`}
-                >
-                  Stock
-                </Link>
-                <Link
-                  href="/admin/finanzas"
-                  className={`text-xs font-semibold px-2 py-1 rounded-md transition-colors ${
-                    pathname.startsWith('/admin/finanzas')
-                      ? 'bg-militar-600 text-white'
-                      : 'text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white'
-                  }`}
-                >
-                  Caja
-                </Link>
-                <Link
-                  href="/admin/turnos"
-                  className={`text-xs font-semibold px-2 py-1 rounded-md transition-colors ${
-                    pathname.startsWith('/admin/turnos')
-                      ? 'bg-militar-600 text-white'
-                      : 'text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white'
-                  }`}
-                >
-                  Turnos
-                </Link>
-              </>
-            )}
             <ThemeToggle />
             <button
               onClick={handleLogout}
-              className="p-1.5 rounded-lg text-red-500 hover:bg-red-50 dark:hover:bg-red-950/40"
+              className="p-1.5 rounded-lg text-red-500 hover:bg-red-50 dark:hover:bg-red-950/40 transition-colors"
               title="Cerrar sesión"
             >
               <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -306,7 +279,86 @@ export default function AdminLayout({
           </div>
         </header>
 
-        <main className="flex-1">
+        {/* Barra de Navegación Inferior Móvil (Bottom Navigation Bar) */}
+        <nav className="lg:hidden fixed bottom-0 left-0 right-0 z-40 bg-white/95 dark:bg-zinc-950/95 backdrop-blur-xl border-t border-zinc-200 dark:border-zinc-800/80 px-2 py-1.5 flex items-center justify-around shadow-2xl safe-area-bottom">
+          <Link
+            href="/admin/pos"
+            className={`flex flex-col items-center justify-center py-1 px-3 rounded-xl transition-all ${
+              pathname.startsWith('/admin/pos')
+                ? 'text-militar-600 dark:text-militar-400 font-bold bg-militar-50 dark:bg-militar-950/50'
+                : 'text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white'
+            }`}
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <rect x="2" y="3" width="20" height="14" rx="2" />
+              <line x1="8" y1="21" x2="16" y2="21" />
+              <line x1="12" y1="17" x2="12" y2="21" />
+            </svg>
+            <span className="text-[10px] mt-0.5 tracking-tight">POS</span>
+          </Link>
+
+          {rolUsuario === 'admin' ? (
+            <>
+              <Link
+                href="/admin/inventario"
+                className={`flex flex-col items-center justify-center py-1 px-3 rounded-xl transition-all ${
+                  pathname.startsWith('/admin/inventario')
+                    ? 'text-militar-600 dark:text-militar-400 font-bold bg-militar-50 dark:bg-militar-950/50'
+                    : 'text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white'
+                }`}
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z" />
+                </svg>
+                <span className="text-[10px] mt-0.5 tracking-tight">Stock</span>
+              </Link>
+
+              <Link
+                href="/admin/finanzas"
+                className={`flex flex-col items-center justify-center py-1 px-3 rounded-xl transition-all ${
+                  pathname.startsWith('/admin/finanzas')
+                    ? 'text-militar-600 dark:text-militar-400 font-bold bg-militar-50 dark:bg-militar-950/50'
+                    : 'text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white'
+                }`}
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <line x1="12" x2="12" y1="2" y2="22" />
+                  <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
+                </svg>
+                <span className="text-[10px] mt-0.5 tracking-tight">Caja</span>
+              </Link>
+
+              <Link
+                href="/admin/turnos"
+                className={`flex flex-col items-center justify-center py-1 px-3 rounded-xl transition-all ${
+                  pathname.startsWith('/admin/turnos')
+                    ? 'text-militar-600 dark:text-militar-400 font-bold bg-militar-50 dark:bg-militar-950/50'
+                    : 'text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white'
+                }`}
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
+                  <circle cx="9" cy="7" r="4" />
+                </svg>
+                <span className="text-[10px] mt-0.5 tracking-tight">Turnos</span>
+              </Link>
+            </>
+          ) : (
+            <Link
+              href="/catalogo"
+              target="_blank"
+              className="flex flex-col items-center justify-center py-1 px-3 rounded-xl text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white transition-all"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z" />
+                <line x1="3" x2="21" y1="6" y2="6" />
+              </svg>
+              <span className="text-[10px] mt-0.5 tracking-tight">Catálogo</span>
+            </Link>
+          )}
+        </nav>
+
+        <main className="flex-1 pb-20 lg:pb-0">
           {children}
         </main>
       </div>
